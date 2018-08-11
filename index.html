@@ -16,7 +16,8 @@
 	<div class="wrapper">
 	  	<header class="header-wrapper">
 	  		<div class="status-text title">WELCOME TO LÖÖPS</div>
-	  		<button id="button-start-stop" class="button">START</button>
+	  		<button id="button-reset" class="button">RESET</button>
+	  		<button id="button-start-stop" class="button start">START</button>
 	  	</header>
 	  	<aside class="side-bar-wrapper">
 	  		<fieldset>
@@ -25,7 +26,7 @@
 	  			<div class="fieldset-content">
 	  				<div class="field">
 		  				<label class="label">Growth</label>
-		  				<input id="brothers-growth" class="trackbar lock input" type="range" min="1" max="30" value="10" data-default="10"/>
+		  				<input id="brothers-growth" class="trackbar lock input" type="range" min="1" max="100" value="10" data-default="10"/>
 		  			</div>
 	  				<div class="field">
 		  				<label class="label">Speed</label>
@@ -87,6 +88,14 @@
 	  			<button id="button-close-changelog" class="button changelog-close">&times;</button>
 	  		</div>
 	  		<div class="changelog-content">
+	  			<div class="version-title">v0.4.5 - Interface</div>
+  				<hr/>
+  				<ul>
+  					<li>Improved <b>colors</b>. Yeah, that's a thing</li>
+  					<li>Now there's a <b>progress bar</b> showing how much bröthers there are</li>
+  					<li>When stopped, the game now <b>freezes</b>. You can click on <b>reset</b> to reset all bröthers and lööps</li>
+  					<li>Pushed <b>growth</b> limit to <b>100</b></li>
+  				</ul>
 	  			<div class="version-title">v0.3 - Nutrition</div>
   				<hr/>
   				<ul>
@@ -115,6 +124,10 @@
 	  		</div>
 	  	</div>
 		<footer class="footer-wrapper">
+	  		<div id="brothers-number-wrapper">
+	  			Bröthers : 
+	  			<span id="brothers-number"></span>
+	  		</div>
 	  		<div class="progress-bar">
 	  			<div id="brothers-progress" class="progress"></div>
 	  		</div>

@@ -17,6 +17,16 @@ const speech = {
 		'Fuck i just want some lööps',
 		'It\'s breakfast time',
 	],
+	pending : [
+
+		'Cant\'t wait to be started !',
+		'What are you waiting for ?',
+		'Are you planning to let us be ?',
+		'Press start bröther',
+		'PRESS THAT START BUTTON FOR GOD SAKE',
+		'I\'m waiting',
+		'I\'ll wait as long as i must',
+	],
 	dragged : [
 
 		'Hey !',
@@ -231,6 +241,7 @@ $( document ).ready( function() {
 	} );
 
 	$( document ).on( 'click', '#button-start-stop', () => { true === running ? stop() : start() } );
+	$( document ).on( 'click', '#button-reset', reset );
 	$( document ).on( 'click', '#button-reset-settings', resetSettings );
 	$( document ).on( 'click', '#button-open-changelog', openChangelog );
 	$( document ).on( 'click', '#button-close-changelog', closeChangelog );
@@ -306,14 +317,11 @@ function init() {
 function animate() {
 
 	c.clearRect( 0, 0, canvas.width, canvas.height );
-	
-	if ( true === running ) {		
 
-		Object.keys( entities ).forEach( arrayKey => {
+	Object.keys( entities ).forEach( arrayKey => {
 
-			entities[ arrayKey ].forEach( brother => { brother.update() } );
-		} );
-	}
+		entities[ arrayKey ].forEach( brother => { brother.update() } );
+	} );
 
 	if ( undefined !== hoveredEntity ) {
 
@@ -326,26 +334,34 @@ function animate() {
 	}
 
 	if ( true === colorChanging ) changeColor();
+
+	updateBrotherStats();
 	
 	requestAnimationFrame( animate );
 }
 
 function start() {
-	
-	init();
 
 	running = true;
 
-	$( '#button-start-stop' ).html( 'STOP' );
+	$( '#button-start-stop' ).removeClass( 'start' ).addClass( 'stop' ).html( 'STOP' );
 }
 
 function stop() {
 
 	running = false;
 
-	c.clearRect( 0, 0, canvas.width, canvas.height );
+	$( '#button-start-stop' ).removeClass( 'stop' ).addClass( 'start' ).html( 'START' );
+}
 
-	$( '#button-start-stop' ).html( 'START' );
+function reset() {
+
+	if ( true === running ) {
+
+		stop();
+	}
+
+	init();
 }
 
 function resetSettings() {
@@ -383,28 +399,8 @@ function createBrother( x = undefined, y = undefined ) {
 
 	if ( undefined === x && undefined === y ) {
 
-		let xmin = newBrother.getW() / 2;
-		let xmax = canvas.width - newBrother.getW();
-		let ymin = newBrother.getH() / 2;
-		let ymax = canvas.height - newBrother.getH();
-
-		newBrother.setX( randInRange( xmin, xmax ) );
-		newBrother.setY( randInRange( ymin, ymax ) );
-		let errorCounter = 0;
-
-		for ( j = 0; j < entities.brothers.length; j ++ ) {
-
-			newBrother.setX( randInRange( xmin, xmax ) );
-			newBrother.setY( randInRange( ymin, ymax ) );
-
-			if ( detectCollision( newBrother, entities.brothers[j] ) ) {
-
-				j = -1;
-				errorCounter ++;
-			}
-
-			if ( 100 < errorCounter ) return;
-		}
+		newBrother.setX( canvas.width / 2 );
+		newBrother.setY( canvas.height / 2 );
 	}
 
 	entities.brothers.push( newBrother );
@@ -538,6 +534,13 @@ function updateColorSpeed() {
 	colorSpeed = $( '#color-speed' ).val() - 0
 }
 
+function updateBrotherStats() {
+
+	$( '#brothers-number' ).html( entities.brothers.length );
+
+	$( '#brothers-progress' ).stop().animate( { width : ( Math.min( entities.brothers.length / 10, 100 ) ) + '%' }, 50 );
+}
+
 function updateRGB() {
 
 	colorChanging = $( '#cb-rgb' ).prop( 'checked' );
@@ -573,7 +576,7 @@ function changeColor() {
 		}
 	}
 
-	for ( i = 0; i < colorArray.length; i ++ ) { colorArray[i] = Math.max( Math.min( colorArray[i], 255 ), 0 ) }
+	for ( let i = 0; i < colorArray.length; i ++ ) { colorArray[i] = Math.max( Math.min( colorArray[i], 255 ), 0 ) }
 
 	color.R = colorArray[0];
 	color.G = colorArray[1];

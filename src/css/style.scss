@@ -1,8 +1,11 @@
 $white : #e3e3e3;
+$grey : #909090;
 $black : #232323;
 $pale_black : #454545;
-$gold : #e0b000;
-$pale_gold : #ffe0aa;
+$gold : #e0b020;
+$pale_gold : #f0c040;
+$red : #800000;
+$pale_red : #a02020;
 
 $mainFont : "Gill Sans MT";
 
@@ -28,6 +31,12 @@ fieldset {
 	border: none;
 }
 
+button {
+
+	user-select: none;
+	background-color: transparent;
+}
+
 .wrapper {
 
 	width: 100%;
@@ -46,7 +55,6 @@ fieldset {
 	* {
 
 		color: $gold;
-		background-color: transparent;
 		font-size: 30px;
 	}
 
@@ -60,18 +68,59 @@ fieldset {
 
 		height: 100%;
 	}
+
+	.start {
+
+		background-color: $gold;
+
+		&:hover {
+
+			background-color: $pale_gold;
+		}
+	}
+
+	.stop {
+
+		background-color: $red;
+
+		&:hover {
+
+			background-color: $pale_red;
+		}
+	}
+
+	#button-start-stop {
+
+		color: #fff;
+	}
 }
 
 .footer-wrapper {
 
 	flex: 1 100%;
-	padding: 20px;
+	padding: 10px 20px;
 	background-color: $black;
+	display: flex;
+	align-items: center;
+
+	* {
+
+		color: $gold;
+		font-size: 30px;
+		background-color: transparent;
+	}
+
+	#brothers-number-wrapper {
+
+		flex: 1;
+		max-width: 250px;
+		padding: 0;
+	}
 
 	.progress-bar {
 
-		width: 100%;
-		height: 100%;
+		flex: 4;
+		height: 60%;
 	}
 }
 
@@ -126,9 +175,21 @@ fieldset {
 		}
 	}
 
-	.button {
+	.button-group {
 
-		font-size: 26px;
+		display: flex;
+		background-color: $grey;
+
+		.button {
+
+			font-size: 26px;
+			flex: 1;
+		}
+
+		.button-small {
+
+			flex: 0.2;
+		}
 	}
 }
 
@@ -234,7 +295,6 @@ fieldset {
 	left: 50%;
 	transform: translate( -50%, -50% );
 	width: 600px;
-	// height: 600px;
 	background-color: $black;
 	position: absolute;
 	display: none;
@@ -307,21 +367,6 @@ fieldset {
 
 		color: $pale_gold;
 		background-color: $pale_black;
-	}
-}
-
-.button-group {
-
-	display: flex;
-
-	.button {
-
-		flex: 1;
-	}
-
-	.button-small {
-
-		flex: 0.2;
 	}
 }
 

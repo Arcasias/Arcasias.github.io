@@ -26,7 +26,7 @@ class Entity {
 
 				let arr = entities[ Object.keys( entities )[i] ];
 
-				for ( j = 0; j < arr.length; j ++ ) {
+				for ( let j = 0; j < arr.length; j ++ ) {
 
 					if ( this === arr[j] ) continue;
 
@@ -168,8 +168,6 @@ class Entity {
 	}
 
 	remove() {
-
-		console.log( entities[ this.arrayType ].indexOf( this ) )
 
 		if ( this === hoveredEntity ) hoveredEntity = undefined;
 

@@ -32,43 +32,49 @@ class Brother extends Entity {
 			return this.shake();
 		}
 
-		if ( undefined !== this.getObjective() ) {
-
-			if ( undefined === entities.loops[ this.getObjective() ] ) {
-
-				this.setObjective();
-				this.setVelocity( Math.random() * 2 - 1, Math.random() * 2 - 1 );
-
-			} else if ( detectCollision( this, entities.loops[ this.getObjective() ] ) ) {
-
-				return this.goalAchieved();
-			}
-		} else {
-
-			if ( 0 < entities.loops.length ) this.setObjective( Math.floor( Math.random() * entities.loops.length ) );
-		}		
-
-		if ( false === this.talking && Math.random() < 1 / 1000 ) this.startTalking();
-
-		if ( false === this.dragging && true === this.moving ) {
+		if ( true === running ) {			
 
 			if ( undefined !== this.getObjective() ) {
 
-				let x = this.getX();
-				let y = this.getY();
+				if ( undefined === entities.loops[ this.getObjective() ] ) {
 
-				let ox = entities.loops[ this.getObjective() ].getX();
-				let oy = entities.loops[ this.getObjective() ].getY();
+					this.setObjective();
+					this.setVelocity( Math.random() * 2 - 1, Math.random() * 2 - 1 );
 
-				this.velocity = {
+				} else if ( detectCollision( this, entities.loops[ this.getObjective() ] ) ) {
 
-					x : xFromDistance( x, y, ox, oy ) * ( x < ox ? 1 : -1 ),
-					y : yFromDistance( x, y, ox, oy ) * ( x < ox ? 1 : -1 ),
+					return this.goalAchieved();
 				}
-			}
+			} else {
 
-			this.x += this.velocity.x * this.speed;
-			this.y += this.velocity.y * this.speed;
+				if ( 0 < entities.loops.length ) this.setObjective( Math.floor( Math.random() * entities.loops.length ) );
+			}		
+
+			if ( false === this.talking && Math.random() < 1 / 1000 ) this.startTalking();
+
+			if ( false === this.dragging && true === this.moving ) {
+
+				if ( undefined !== this.getObjective() ) {
+
+					let x = this.getX();
+					let y = this.getY();
+
+					let ox = entities.loops[ this.getObjective() ].getX();
+					let oy = entities.loops[ this.getObjective() ].getY();
+
+					this.velocity = {
+
+						x : xFromDistance( x, y, ox, oy ) * ( x < ox ? 1 : -1 ),
+						y : yFromDistance( x, y, ox, oy ) * ( x < ox ? 1 : -1 ),
+					}
+				}
+
+				this.x += this.velocity.x * this.speed;
+				this.y += this.velocity.y * this.speed;
+			}
+		} else {
+
+			if ( false === this.talking && Math.random() < 1 / 1000 ) this.startTalking( randInArray( speech.pending ) );
 		}
 	}
 
