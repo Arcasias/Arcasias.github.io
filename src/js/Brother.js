@@ -24,11 +24,19 @@ class Brother extends Entity {
 
 		if ( undefined !== this.getObjective() ) {
 
-			if ( detectCollision( this, entities.loops[ this.getObjective() ] ) ) {
+			if ( undefined === entities.loops[ this.getObjective() ] ) {
 
-				this.startTalking( randInArray( speech.gotLoop ), true );
+				this.setObjective();
+				this.setVelocity( Math.random() * 2 - 1, Math.random() * 2 - 1 );
 
-				return deleteLoop( this.getObjective() );
+			} else if ( detectCollision( this, entities.loops[ this.getObjective() ] ) ) {
+
+				this.startTalking( randInArray( speech.found ), true );
+				deleteLoop( this.getObjective() );
+
+				if ( 0 < entities.loops.length ) this.setObjective( Math.floor( Math.random() * entities.loops.length ) );
+
+				return;
 			}
 		} else {
 
@@ -72,12 +80,12 @@ class Brother extends Entity {
 		    let width = c.measureText( this.text ).width;
 
 		    c.strokeStyle = '#000';
-		    c.strokeRect( this.x - 20, this.y - 35, width + 20, parseInt( speechFont, 10 ) + 20 );
+		    c.strokeRect( this.getX() + this.getW() / 2 - 10, this.getY() - 35, width + 20, parseInt( speechFont, 10 ) + 20 );
 		    c.fillStyle = '#FFF';
-		    c.fillRect( this.x - 20, this.y - 35, width + 20, parseInt( speechFont, 10 ) + 20 );
+		    c.fillRect( this.getX() + this.getW() / 2 - 10, this.getY() - 35, width + 20, parseInt( speechFont, 10 ) + 20 );
 		    
 		    c.fillStyle = '#000';
-		    c.fillText( this.text , this.x - 10, this.y - 10 );
+		    c.fillText( this.text , this.getX() + this.getW() / 2, this.getY() - 8 );
 		    
 		    c.restore();
 		}
@@ -91,6 +99,8 @@ class Brother extends Entity {
 	setObjective( objectiveID = undefined ) {
 
 		this.objectiveID = objectiveID;
+
+		if ( Math.random() < 1 / 10 ) this.startTalking( randInArray( undefined === objectiveID ? speech.notfound : speech.seek ), true );
 	}
 
 	startDragging() {

@@ -145,6 +145,7 @@ fieldset {
 		overflow: hidden;
 		position: relative;
 		user-select: none;
+  		cursor: pointer;
 		display: flex;
   		justify-content: center;
 		align-items: center;
@@ -446,7 +447,7 @@ fieldset {
 
 .hide-cursor {
 
-	cursor: none;
+	cursor: none !important;
 }
 
 @media all and ( max-width: 800px ) {

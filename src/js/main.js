@@ -55,7 +55,20 @@ const speech = {
 		'Time to get these lööps',
 		'Let\'s do this',
 	],
-	gotLoop : [
+	seek : [
+
+		'Seek and consume',
+		'Target aquired',
+		'Lööps spotted',
+		'That looks tasty',
+		'I want dis',
+		'Our bröther has dispensed some lööps',
+		'More lööps',
+		'Oh boi',
+		'Dinner is served',
+		'This one is mine',
+	],
+	found : [
 
 		'I got the lööps !',
 		'Yesss !',
@@ -65,6 +78,15 @@ const speech = {
 		'The lööps have been retrieved',
 		'Lööps consumed',
 		'Delicious',
+		'Thanks bröther',
+	],
+	notfound : [
+
+		'I\'ll get it next time',
+		'Nooooooooo',
+		'Damn',
+		'I was too slow',
+		'No lööps for me i guess',
 	],
 }
 
@@ -136,6 +158,11 @@ const morphs = [
 
 const speechFont = '20px Arial';
 
+const baseColors = {
+
+
+}
+
 let changelogVisible = false;
 
 let customCursor = undefined;
@@ -181,6 +208,10 @@ $( document ).ready( function() {
 				if ( true === changelogVisible ) closeChangelog();
 				break;
 
+			case 82 : 	// R
+				resetSettings();
+				break;
+
 			case 112 :	// F1
 				event.preventDefault();
 				true === changelogVisible ? closeChangelog() : openChangelog();
@@ -199,9 +230,6 @@ $( document ).ready( function() {
 	$( document ).on( 'input', '#color-speed', updateColorSpeed );
 	$( document ).on( 'input', '#cb-collisions', updateCollisions );
 	$( document ).on( 'input', '#cb-rgb', updateRGB );
-
-	$( document ).on( 'mouseenter', '#game-area', hideCursor );
-	$( document ).on( 'mouseleave', '#game-area', showCursor );
 
 	$( document ).on( 'mousedown', '#game-area', mouseDown );
 	$( document ).on( 'mouseup', '#game-area', mouseUp );
@@ -278,7 +306,15 @@ function animate() {
 		} );
 	}
 
-	c.drawImage( loopImg.id, mouse.x - ( 40 * loopImg.ratio ) / 2, mouse.y - 20, 40 * loopImg.ratio, 40 );
+	if ( undefined !== hoveredEntity ) {
+
+		$( '#game-area' ).removeClass( 'hide-cursor' );
+
+	} else {
+
+		c.drawImage( loopImg.id, mouse.x - ( 40 * loopImg.ratio ) / 2, mouse.y - 20, 40 * loopImg.ratio, 40 );
+		$( '#game-area' ).addClass( 'hide-cursor' );
+	}
 
 	if ( true === colorChanging ) changeColor();
 	
@@ -333,16 +369,6 @@ function updateSettingsValues() {
 	updateRGB();
 }
 
-function hideCursor() {
-
-	$( this ).addClass( 'hide-cursor' );
-}
-
-function showCursor() {
-
-	$( this ).removeClass( 'hide-cursor' );
-}
-
 function createBrother( x = undefined, y = undefined ) {
 
 	let newBrother = new Brother( x, y, brotherImg.w, brotherImg.h );
@@ -354,14 +380,14 @@ function createBrother( x = undefined, y = undefined ) {
 		let ymin = newBrother.getH() / 2;
 		let ymax = canvas.height - newBrother.getH();
 
-		newBrother.setX( randInRange( 0, xmax ) );
-		newBrother.setY( randInRange( 0, ymax ) );
+		newBrother.setX( randInRange( xmin, xmax ) );
+		newBrother.setY( randInRange( ymin, ymax ) );
 		let errorCounter = 0;
 
 		for ( j = 0; j < entities.brothers.length; j ++ ) {
 
-			newBrother.setX( randInRange( 0, xmax ) );
-			newBrother.setY( randInRange( 0, ymax ) );
+			newBrother.setX( randInRange( xmin, xmax ) );
+			newBrother.setY( randInRange( ymin, ymax ) );
 
 			if ( detectCollision( newBrother, entities.brothers[j] ) ) {
 
@@ -392,15 +418,6 @@ function createLoop() {
 function deleteLoop( loopID ) {
 
 	entities.loops.splice( loopID, 1 );
-
-	entities.brothers.forEach( brother => {
-
-		if ( undefined !== brother.getObjective() && brother.getObjective() === loopID ) {
-
-			brother.setObjective();
-			brother.setVelocity( Math.random() * 2 - 1, Math.random() * 2 - 1 );
-		}
-	} );
 }
 
 function randInRange( min, max ) {
@@ -438,10 +455,10 @@ function rotate( velocity, angle ) {
 
 function detectCollision( entity1, entity2 ) {
 
-	return ( ( entity2.x < entity1.x + entity1.getW()
-		&& entity1.x < entity2.x + entity2.getW()
-		&& entity2.y < entity1.y + entity1.getH()
-		&& entity1.y < entity2.y + entity2.getH() ) );
+	return ( ( entity2.getX() < entity1.getX() + entity1.getW()
+		&& entity1.getX() < entity2.getX() + entity2.getW()
+		&& entity2.getY() < entity1.getY() + entity1.getH()
+		&& entity1.getY() < entity2.getY() + entity2.getH() ) );
 }
 
 function resolveCollision( entity1, entity2 ) {
@@ -548,6 +565,8 @@ function updateColorSpeed() {
 function updateRGB() {
 
 	colorChanging = $( '#cb-rgb' ).prop( 'checked' );
+
+	if ( false === colorChanging ) $( '*' ).css( 'color', '' );
 }
 
 function changeColor() {

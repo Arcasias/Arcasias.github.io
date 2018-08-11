@@ -71,7 +71,7 @@ class Entity {
 
 	setX( x ) {
 
-		this.x = x + this.getW() / 2;
+		this.x = x;
 	}
 
 	getY() {
@@ -81,7 +81,7 @@ class Entity {
 
 	setY( y ) {
 
-		this.y = y + this.getH() / 2;
+		this.y = y;
 	}
 
 	getW() {

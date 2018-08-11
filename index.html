@@ -10,7 +10,6 @@
   	<script src="src/js/Brother.js"></script>
   	<script src="src/js/Loop.js"></script>
   	<link rel="stylesheet" href="src/css/style.css">
-    <link rel="shortcut icon" href="">
   	<title>LööPS</title>
 </head>
 <body>
@@ -34,7 +33,7 @@
 		  			</div>
 	  				<div class="field">
 		  				<label class="label">Size</label>
-		  				<input id="brothers-size" class="trackbar input" type="range" min="5" max="75" value="25" data-default="15"/>
+		  				<input id="brothers-size" class="trackbar input" type="range" min="5" max="75" value="20" data-default="20"/>
 		  			</div>
 	  				<div class="field">
 		  				<label class="label">Collisions</label>
@@ -81,8 +80,8 @@
 		  		<button id="button-open-changelog" class="button button-small">?</button>
 		  	</div>
 	  	</aside>
-  		<img id="brother" src="src/img/brother.png" style="position: absolute; left: -9999px;"/>
-  		<img id="loop" src="src/img/loops.png" style="position: absolute; left: -9999px;"/>
+  		<img id="brother" src="src/img/brother.png" alt="brother" style="position: absolute; left: -9999px;"/>
+  		<img id="loop" src="src/img/loops.png" alt="loops" style="position: absolute; left: -9999px;"/>
 		<div class="main-wrapper">
 			<canvas id="game-area"></canvas>
 		</div>
@@ -92,16 +91,21 @@
 	  			<button id="button-close-changelog" class="button changelog-close">&times;</button>
 	  		</div>
 	  		<div class="changelog-content">
+  				<div class="version-title">v0.2 - Feed the bröthers</div>
+  				<hr/>
+  				<ul>
+  					<li>Added a <b>tracking system</b> allowing the bröthers to retrieve the lööps</li>
+  					<li>Cursor is now adapting to what is been <b>hovered</b></li>
+  					<li>Added more <b>sentences</b> for the bröthers</li>
+  					<li>New <b>shortcut</b> : press <b>R</b> to reset the settings</li>
+  				</ul>
   				<div class="version-title">v0.1 - Added changelog</div>
   				<hr/>
   				<ul>
   					<li>Added <b>changelog</b> to keep track of what's been done</li>
   					<li>Added <b>shortcuts</b> : <b>F1</b> to open the changelog and <b>F1</b> or <b>Esc</b> to close it</li>
   					<li>Louis is now able to <b>suck</b> my <b>cock</b></li>
-  					<li>Not much fixed, still bugged AF</li>
-  					<li>Still want to kill myself though</li>
-  					<li>This is not a <b>meme</b>, this is a legit call for <b>help</b></li>
-  					<li>Added <b>HUGE ASS lööps</b> when you click in the game area</li>
+  					<li>You can add <b>lööps</b> by clicking in the game area</li>
   				</ul>
 	  		</div>
 	  	</div>
