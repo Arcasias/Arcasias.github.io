@@ -22,7 +22,7 @@ class Entity {
 
 		if ( true === collisions ) {
 
-			for ( i = 0; i < Object.keys( entities ).length; i ++ ) {
+			for ( let i = 0; i < Object.keys( entities ).length; i ++ ) {
 
 				let arr = entities[ Object.keys( entities )[i] ];
 
@@ -165,5 +165,14 @@ class Entity {
 	stopDragging() {
 
 		this.dragging = false;
+	}
+
+	remove() {
+
+		console.log( entities[ this.arrayType ].indexOf( this ) )
+
+		if ( this === hoveredEntity ) hoveredEntity = undefined;
+
+		entities[ this.arrayType ].splice( entities[ this.arrayType ].indexOf( this ), 1 );
 	}
 }

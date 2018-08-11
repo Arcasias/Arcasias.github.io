@@ -88,6 +88,13 @@ const speech = {
 		'I was too slow',
 		'No lööps for me i guess',
 	],
+	exploding : [
+
+		'Uuuuuuuurrrrrrr',
+		'I got too much lööps...',
+		'Oh, here we go',
+		'Mr Stark i don\'t feel so good...',
+	],
 }
 
 const morphs = [
@@ -188,9 +195,13 @@ let brotherImg = {};
 let loopImg = {};
 
 let collisions = false;
-let brotherAmount, brotherSpeed, brotherSize;
-let loopSize;
-let sizeStep = 0.02;
+let brotherGrowth, brotherSpeed;
+let brotherSizeMin = 0.2;
+let brotherSizeMax = 1;
+let brotherSizeStep = 0.05;
+let loopSize, loopNutrition;
+let loopSizeMin = 0.05;
+let loopSizeStep = 0.01;
 
 $( document ).ready( function() {
 
@@ -223,9 +234,8 @@ $( document ).ready( function() {
 	$( document ).on( 'click', '#button-reset-settings', resetSettings );
 	$( document ).on( 'click', '#button-open-changelog', openChangelog );
 	$( document ).on( 'click', '#button-close-changelog', closeChangelog );
-	$( document ).on( 'input', '#brothers-number', updateBrotherNumber );
+	$( document ).on( 'input', '#brothers-growth', updateBrotherGrowth );
 	$( document ).on( 'input', '#brothers-speed', updateBrotherSpeed );
-	$( document ).on( 'input', '#brothers-size', updateBrotherSize );
 	$( document ).on( 'input', '#loops-size', updateLoopSize );
 	$( document ).on( 'input', '#color-speed', updateColorSpeed );
 	$( document ).on( 'input', '#cb-collisions', updateCollisions );
@@ -290,8 +300,7 @@ function init() {
 	};
 
 	updateSettingsValues();
-
-	for ( i = 0; i < brotherAmount; i ++ ) { createBrother(); }
+	createBrother();
 }
 
 function animate() {
@@ -360,9 +369,8 @@ function resetSettings() {
 
 function updateSettingsValues() {
 
-	updateBrotherNumber();
+	updateBrotherGrowth();
 	updateBrotherSpeed();
-	updateBrotherSize();
 	updateLoopSize();
 	updateColorSpeed();
 	updateCollisions();
@@ -413,11 +421,6 @@ function createLoop() {
 
 		if ( undefined === brother.getObjective() ) brother.setObjective( loopID );
 	} );
-}
-
-function deleteLoop( loopID ) {
-
-	entities.loops.splice( loopID, 1 );
 }
 
 function randInRange( min, max ) {
@@ -503,26 +506,9 @@ function mouseUp() {
 	if ( undefined !== hoveredEntity && true === hoveredEntity.dragging ) hoveredEntity.stopDragging();
 }
 
-function updateBrotherNumber() {
+function updateBrotherGrowth() {
 
-	let oldAmount = brotherAmount;
-
-	brotherAmount = $( '#brothers-number' ).val() - 0;
-
-	if ( 0 === entities.brothers.length ) return;
-
-	let diff = brotherAmount - oldAmount;
-
-	if ( 0 < diff ) {
-
-		for ( i = entities.brothers.length; i < brotherAmount; i ++ ) { createBrother(); }
-	
-	} else {
-
-		if ( entities.brothers.length <= brotherAmount ) return;
-
-		entities.brothers.splice( brotherAmount );
-	}	
+	brotherGrowth = $( '#brothers-growth' ).val() - 0;
 }
 
 function updateBrotherSpeed() {
@@ -534,22 +520,12 @@ function updateBrotherSpeed() {
 	entities.brothers.forEach( brother => { brother.setSpeed( brotherSpeed ) } );
 }
 
-function updateBrotherSize() {
-
-	brotherSize = $( '#brothers-size' ).val() * sizeStep;
-
-	if ( 0 === entities.brothers.length ) return;
-
-	entities.brothers.forEach( brother => { brother.setSize( brotherSize ) } );
-}
-
 function updateLoopSize() {
 
-	loopSize = $( '#loops-size' ).val() * sizeStep;
+	let loopVal = $( '#loops-size' ).val() * loopSizeStep
 
-	if ( 0 === entities.loops.length ) return;
-
-	entities.loops.forEach( loop => { loop.setSize( loopSize ) } );
+	loopSize = Math.max( loopVal, loopSizeMin );
+	loopNutrition = loopVal;
 }
 
 function updateCollisions() {

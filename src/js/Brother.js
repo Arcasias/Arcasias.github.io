@@ -6,7 +6,7 @@ class Brother extends Entity {
 
 		this.arrayType = 'brothers';
 		this.img = brotherImg.id;
-		this.size = brotherSize;
+		this.size = brotherSizeMin;
 		this.speed = brotherSpeed;
 
 		this.talking = false;
@@ -15,12 +15,22 @@ class Brother extends Entity {
 		this.objectiveID = undefined;
 		this.velocity = { x : 0, y : 0 };
 
+		this.exploding = false;
+		this.explodingIntensity = 0;
+
 		this.setVelocity( Math.random() * 2 - 1, Math.random() * 2 - 1 );
 	}
 
 	update() {
 
 		super.update();
+
+		if ( true === this.exploding ) {
+
+			this.explodingIntensity ++;
+
+			return this.shake();
+		}
 
 		if ( undefined !== this.getObjective() ) {
 
@@ -31,17 +41,12 @@ class Brother extends Entity {
 
 			} else if ( detectCollision( this, entities.loops[ this.getObjective() ] ) ) {
 
-				this.startTalking( randInArray( speech.found ), true );
-				deleteLoop( this.getObjective() );
-
-				if ( 0 < entities.loops.length ) this.setObjective( Math.floor( Math.random() * entities.loops.length ) );
-
-				return;
+				return this.goalAchieved();
 			}
 		} else {
 
 			if ( 0 < entities.loops.length ) this.setObjective( Math.floor( Math.random() * entities.loops.length ) );
-		}
+		}		
 
 		if ( false === this.talking && Math.random() < 1 / 1000 ) this.startTalking();
 
@@ -103,6 +108,21 @@ class Brother extends Entity {
 		if ( Math.random() < 1 / 10 ) this.startTalking( randInArray( undefined === objectiveID ? speech.notfound : speech.seek ), true );
 	}
 
+	goalAchieved() {
+
+		this.startTalking( randInArray( speech.found ), true );
+
+		let nutrition = entities.loops[ this.getObjective() ].nutrition;
+
+		entities.loops[ this.getObjective() ].remove();
+
+		if ( 0 < entities.loops.length ) this.setObjective( Math.floor( Math.random() * entities.loops.length ) );
+
+		this.size += nutrition;
+
+		if ( brotherSizeMax <= this.size ) this.explode();
+	}
+
 	startDragging() {
 
 		super.startDragging();
@@ -144,5 +164,29 @@ class Brother extends Entity {
 		if ( true === clearPrevious ) clearTimeout( this.talking );
 
 		this.talking = false;
+	}
+
+	shake() {
+
+		this.x += Math.random() * this.explodingIntensity / 5 - this.explodingIntensity / 10;
+		this.y += Math.random() * this.explodingIntensity / 5 - this.explodingIntensity / 10;
+	}
+
+	explode() {
+
+		this.exploding = true;
+
+		this.startTalking( randInArray( speech.exploding ), true );
+
+		setTimeout( () => {
+
+			for ( let i = 0; i < brotherGrowth; i ++ ) {
+
+				createBrother( this.x, this.y );
+			}
+
+			this.remove();
+
+		}, 2000 );		
 	}
 }

@@ -7,6 +7,7 @@ class Loop extends Entity {
 		this.arrayType = 'loops';
 		this.img = loopImg.id;
 		this.size = loopSize;
+		this.nutrition = loopNutrition;
 		this.moving = false;
 	}
 }
