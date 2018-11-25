@@ -1,13 +1,14 @@
 class Brother extends Entity {
 
-	constructor( x, y, w, h ) {
+	constructor( x, y, img, speech ) {
 
-		super( x, y, w, h );
+		super( x, y, img );
 
 		this.arrayType = 'brothers';
-		this.img = brotherImg.id;
 		this.size = brotherSizeMin;
 		this.speed = brotherSpeed;
+
+		this.speech = speech;
 
 		this.talking = false;
 		this.text = '';
@@ -32,7 +33,7 @@ class Brother extends Entity {
 			return this.shake();
 		}
 
-		if ( true === running ) {			
+		if ( true === running && this.speed != 0 ) {			
 
 			if ( undefined !== this.getObjective() ) {
 
@@ -74,7 +75,7 @@ class Brother extends Entity {
 			}
 		} else {
 
-			if ( false === this.talking && Math.random() < 1 / 1000 ) this.startTalking( randInArray( speech.pending ) );
+			if ( false === this.talking && Math.random() < 1 / 1000 ) this.startTalking( randInArray( this.speech.pending ) );
 		}
 	}
 
@@ -102,6 +103,16 @@ class Brother extends Entity {
 		}
 	}
 
+	getSpeech() {
+
+		return this.speech;
+	}
+
+	setSpeech( speech ) {
+
+		this.speech = speech;
+	}
+
 	getObjective() {
 
 		return this.objectiveID;
@@ -111,12 +122,12 @@ class Brother extends Entity {
 
 		this.objectiveID = objectiveID;
 
-		if ( Math.random() < 1 / 10 ) this.startTalking( randInArray( undefined === objectiveID ? speech.notfound : speech.seek ), true );
+		if ( Math.random() < 1 / 10 ) this.startTalking( randInArray( undefined === objectiveID ? this.speech.notfound : this.speech.seek ), true );
 	}
 
 	goalAchieved() {
 
-		this.startTalking( randInArray( speech.found ), true );
+		this.startTalking( randInArray( this.speech.found ), true );
 
 		let nutrition = entities.loops[ this.getObjective() ].nutrition;
 
@@ -133,14 +144,14 @@ class Brother extends Entity {
 
 		super.startDragging();
 
-		this.startTalking( randInArray( speech.dragged ), true );
+		this.startTalking( randInArray( this.speech.dragged ), true );
 	}
 
 	stopDragging() {
 
 		super.stopDragging();
 
-		this.startTalking( randInArray( speech.dropped ), true );
+		this.startTalking( randInArray( this.speech.dropped ), true );
 	}
 
 	startTalking( toSay = undefined, override = false ) {
@@ -154,7 +165,7 @@ class Brother extends Entity {
 
 		this.toFront();
 
-		this.text = undefined === toSay ? randInArray( speech.default ) : toSay;
+		this.text = undefined === toSay ? randInArray( this.speech.default ) : toSay;
 
 		this.talking = setTimeout( () => {
 
@@ -182,11 +193,20 @@ class Brother extends Entity {
 
 		this.exploding = true;
 
-		this.startTalking( randInArray( speech.exploding ), true );
+		this.startTalking( randInArray( this.speech.exploding ), true );
 
 		setTimeout( () => {
 
-			for ( let i = 0; i < brotherGrowth; i ++ ) {
+			if ( entities.brothers.length < maxBrothers ) {
+
+				for ( let i = 0; i < brotherGrowth; i ++ ) {
+
+					if ( maxBrothers < entities.brothers.length ) break;
+
+					createBrother( this.x, this.y );
+				}
+			
+			} else {
 
 				createBrother( this.x, this.y );
 			}

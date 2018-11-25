@@ -1,11 +1,10 @@
 class Loop extends Entity {
 
-	constructor( x, y, w, h ) {
+	constructor( x, y, img ) {
 
-		super( x, y, w, h );
+		super( x, y, img );
 
 		this.arrayType = 'loops';
-		this.img = loopImg.id;
 		this.size = loopSize;
 		this.nutrition = loopNutrition;
 		this.moving = false;

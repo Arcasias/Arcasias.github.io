@@ -1,13 +1,14 @@
 class Entity {
 	
-	constructor( x, y, w, h ) {
+	constructor( x, y, img ) {
 
 		this.x = x;
 		this.y = y;
-		this.w = w;
-		this.h = h;
+		this.img = img;
+		this.w = img.clientWidth;
+		this.h = img.clientHeight;
+		this.speech = preset.speech;
 		this.size = 1;
-		this.img = undefined;
 		this.mass = 1;
 		this.speed = 1;
 		this.velocity = { x : 0, y : 0 };
@@ -94,6 +95,28 @@ class Entity {
 		return this.h * this.size;
 	}
 
+	getImg() {
+
+		return this.img;
+	}
+
+	setImg( img ) {
+
+		this.img = img;
+		this.w = img.clientWidth;
+		this.h = img.clientHeight;
+	}
+
+	getSize() {
+
+		return this.size;
+	}
+
+	setSize( size ) {
+
+		this.size = size;
+	}
+
 	getMass() {
 
 		return this.mass;
@@ -123,16 +146,6 @@ class Entity {
 
 		this.velocity.x = x;
 		this.velocity.y = y;
-	}
-
-	getSize() {
-
-		return this.size;
-	}
-
-	setSize( size ) {
-
-		this.size = size;
 	}
 
 	hovered() {

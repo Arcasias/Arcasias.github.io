@@ -1,184 +1,25 @@
-const speech = {
+const presets = {
 
-	default : [
-
-		'Bröther',
-		'Bröther pls',
-		'Bröther, may i have some lööps ?',
-		'I beg you bröther',
-		'Please bröther',
-		'I\'m hungry bröther',
-		'Lööps',
-		'Need the lööps',
-		'I seek the lööps',
-		'I want the lööps',
-		'Just a few lööps',
-		'Houston, we need the lööps',
-		'Fuck i just want some lööps',
-		'It\'s breakfast time',
-	],
-	pending : [
-
-		'Cant\'t wait to be started !',
-		'What are you waiting for ?',
-		'Are you planning to let us be ?',
-		'Press start bröther',
-		'PRESS THAT START BUTTON FOR GOD SAKE',
-		'I\'m waiting',
-		'I\'ll wait as long as i must',
-	],
-	dragged : [
-
-		'Hey !',
-		'Why ?',
-		'But why',
-		'What have i done ?',
-		'Mommy look, i\'m flying',
-		'You surprised me bröther',
-		'Be gentle please',
-		'You must put me back',
-		'Put me back down !',
-		'I can\'t get the lööps if you grab me',
-		'Bröther, why have you forsaken me ?',
-		'Why bröther ?',
-		'Hey ! That\'s not nice !',
-		'Why you dö dis ?',
-		'Nööööööööö',
-		'Stop dragging me around !',
-		'Guess i won\'t have the lööps',
-		'*Sigh*',
-		'Jesus',
-		'Jesus Christ',
-		'Oh my god',
-		'I can\'t believe you just did that',
-	],
-	dropped : [
-
-		'That was mean',
-		'Not nice, bröther',
-		'You should be ashamed',
-		'Better not try this again',
-		'Your actions have consequences',
-		'Thanks for the ride',
-		'Well... thanks i guess',
-		'Hum, thank you ?',
-		'Time to get these lööps',
-		'Let\'s do this',
-	],
-	seek : [
-
-		'Seek and consume',
-		'Target aquired',
-		'Lööps spotted',
-		'That looks tasty',
-		'I want dis',
-		'Our bröther has dispensed some lööps',
-		'More lööps',
-		'Oh boi',
-		'Dinner is served',
-		'This one is mine',
-	],
-	found : [
-
-		'I got the lööps !',
-		'Yesss !',
-		'Yummy !',
-		'*Gulp*',
-		'*Click* Noice',
-		'The lööps have been retrieved',
-		'Lööps consumed',
-		'Delicious',
-		'Thanks bröther',
-	],
-	notfound : [
-
-		'I\'ll get it next time',
-		'Nooooooooo',
-		'Damn',
-		'I was too slow',
-		'No lööps for me i guess',
-	],
-	exploding : [
-
-		'Uuuuuuuurrrrrrr',
-		'I got too much lööps...',
-		'Oh, here we go',
-		'Mr Stark i don\'t feel so good...',
-	],
-}
-
-const morphs = [
-
-	{
-		img : 'pingu.png',
-		txt : [
-			'NOOT NOOT',
-		],
+	brother : {
+		brother : 'brother',
+		loops : 'loops',
 	},
-	{
-		img : 'knuckles.png',
-		txt : [
-			'Do you know da wae ?',
-			'*Klucking noises*',
-			'Queen',
-			'She\'s our queen',
-			'Spit on him bruthers',
-		],
+	antoine : {
+		brother : 'antoine',
+		loops : 'soup',
 	},
-	{
-		img : 'indian.png',
-		txt : [
-			'Show bobs and vagene',
-			'Open bobs plis',
-			'My pinus stands when ur vision',
-			'Hav seks with me',
-			'Hey sexy',
-			'Nice bobs',
-			'Do milk',
-		],
+	julien : {
+		brother : 'julien',
+		loops : 'rope',
 	},
-	{
-		img : 'julien.png',
-		txt : [
-			'It\'s free real estate',
-			'Nice loli',
-			'If her age is on the clock...',
-			'REEEEEEEEEEEEEE',
-			'Et sans transition... MES COUILLES !',
-		],
+	florent : {
+		brother : 'florent',
+		loops : 'emc2',
 	},
-	{
-		img : 'valer.png',
-		txt : [
-			'YAMERO',
-			'Qu\'est-ce que je fous ici ?',
-			'Julien arrête tes conneries plz',
-			'Mais ptn',
-			'Pourquoi je suis entouré de chats moi ?',
-			'Hmmmmm...',
-		],
-	},
-	{
-		img : 'megumin.png',
-		txt : [
-			'Ravioli, ravioli, don\'t lewd me',
-			'You deserve jail',
-			'Hentai',
-			'Baka !',
-			'I\'m not getting the lööp for you, baka',
-			'エクスプロージョン',
-			'YAME... YAMEROOOO !!!',
-			'Yamete kudasai',
-		],
-	}
-];
+};
 
 const speechFont = '20px Arial';
-
-const baseColors = {
-
-
-}
+const maxBrothers = 1000;
 
 let changelogVisible = false;
 
@@ -198,11 +39,14 @@ let color = {
 	R : 255,
 	G : 0,
 	B : 0,
+	hex : '#000000',
 };
 
 let canvas, c, mouse;
+let currentPreset = 'brother';
 let brotherImg = {};
-let loopImg = {};
+let brotherSpeech = {};
+let loopsImg = {};
 
 let collisions = false;
 let brotherGrowth, brotherSpeed;
@@ -248,6 +92,7 @@ $( document ).ready( function() {
 	$( document ).on( 'input', '#brothers-growth', updateBrotherGrowth );
 	$( document ).on( 'input', '#brothers-speed', updateBrotherSpeed );
 	$( document ).on( 'input', '#loops-size', updateLoopSize );
+	$( document ).on( 'change', '#preset', updatePreset );
 	$( document ).on( 'input', '#color-speed', updateColorSpeed );
 	$( document ).on( 'input', '#cb-collisions', updateCollisions );
 	$( document ).on( 'input', '#cb-rgb', updateRGB );
@@ -267,7 +112,9 @@ $( document ).ready( function() {
 		mouse.y = event.clientY - canvas.offsetTop;
 	} );
 
-	$( document ).on( 'resize', function( event ) {
+	$( '#game-area' ).on( 'resize', function( event ) {
+
+		console.log( 'resized' );
 
 		canvas.width = canvas.offsetWidth;
 		canvas.height = canvas.offsetHeight;
@@ -281,22 +128,6 @@ $( document ).ready( function() {
 	mouse = {
 		x : canvas.width / 2,
 		y : canvas.height / 2,
-	}
-
-	brotherImg = {
-
-		id : document.getElementById( 'brother' ),
-		w : brother.clientWidth,
-		h : brother.clientHeight,
-		ratio : brother.clientWidth / brother.clientHeight,
-	}
-
-	loopImg = {
-
-		id : document.getElementById( 'loop' ),
-		w : loop.clientWidth,
-		h : loop.clientHeight,
-		ratio : loop.clientWidth / loop.clientHeight,
 	}
 
 	init();
@@ -329,7 +160,7 @@ function animate() {
 
 	} else {
 
-		c.drawImage( loopImg.id, mouse.x - ( 40 * loopImg.ratio ) / 2, mouse.y - 20, 40 * loopImg.ratio, 40 );
+		c.drawImage( loopsImg, mouse.x - ( 40 * loopsImg.clientWidth / loopsImg.clientHeight ) / 2, mouse.y - 20, 40 * loopsImg.clientWidth / loopsImg.clientHeight, 40 );
 		$( '#game-area' ).addClass( 'hide-cursor' );
 	}
 
@@ -366,11 +197,11 @@ function reset() {
 
 function resetSettings() {
 
-	$( '.cb-checkbox' ).add( '.trackbar' ).each( ( i, input ) => {
+	$( '.cb-checkbox' ).add( '.trackbar' ).add( '.select' ).each( ( i, input ) => {
 
 		let defaultVal = $( input ).data( 'default' );
 
-		if ( true === defaultVal || false === defaultVal ) {
+		if ( typeof defaultVal === 'boolean' ) {
 
 			$( input ).prop( 'checked', defaultVal );
 
@@ -388,6 +219,7 @@ function updateSettingsValues() {
 	updateBrotherGrowth();
 	updateBrotherSpeed();
 	updateLoopSize();
+	updatePreset();
 	updateColorSpeed();
 	updateCollisions();
 	updateRGB();
@@ -395,7 +227,7 @@ function updateSettingsValues() {
 
 function createBrother( x = undefined, y = undefined ) {
 
-	let newBrother = new Brother( x, y, brotherImg.w, brotherImg.h );
+	let newBrother = new Brother( x, y, brotherImg, brotherSpeech );
 
 	if ( undefined === x && undefined === y ) {
 
@@ -408,7 +240,7 @@ function createBrother( x = undefined, y = undefined ) {
 
 function createLoop() {
 
-	let newLoop = new Loop( mouse.x, mouse.y, loopImg.w, loopImg.h );
+	let newLoop = new Loop( mouse.x, mouse.y, loopsImg );
 	let loopID = entities.loops.length;
 
 	entities.loops.push( newLoop );
@@ -462,27 +294,21 @@ function detectCollision( entity1, entity2 ) {
 
 function resolveCollision( entity1, entity2 ) {
 
-	const velocityDiffX = entity1.velocity.x - entity2.velocity.x;
-	const velocityDiffY = entity1.velocity.y - entity2.velocity.y;
+	let distX = entity2.x - entity1.x;
+	let distY = entity2.y - entity1.y;
 
-	const distX = entity2.x - entity1.x;
-	const distY = entity2.y - entity1.y;
+	if ( 0 <= ( entity1.velocity.x - entity2.velocity.x ) * distX + ( entity1.velocity.y - entity2.velocity.y ) * distY ) {
 
-	if ( 0 <= velocityDiffX * distX + velocityDiffY * distY ) {
+		let angle = Math.atan2( distY, distX ) * -1;
 
-		const angle = Math.atan2( distY, distX ) * -1;
+		let m1 = entity1.getMass();
+		let m2 = entity2.getMass();
 
-		const m1 = entity1.getMass();
-		const m2 = entity2.getMass();
-
-		const u1 = rotate( entity1.getVelocity(), angle );
-		const u2 = rotate( entity2.getVelocity(), angle );
-
-		const v1 = {  x : u1.x * ( m1 - m2 ) / ( m1 + m2 ) + u2.x * 2 * m2 / ( m1 + m2 ), y : u1.y }
-		const v2 = {  x : u2.x * ( m1 - m2 ) / ( m1 + m2 ) + u1.x * 2 * m2 / ( m1 + m2 ), y : u2.y }
+		let u1 = rotate( entity1.getVelocity(), angle );
+		let u2 = rotate( entity2.getVelocity(), angle );
 	
-		const finalV1 = rotate( v1, angle * -1 );
-		const finalV2 = rotate( v2, angle * -1 );
+		let finalV1 = rotate( {  x : u1.x * ( m1 - m2 ) / ( m1 + m2 ) + u2.x * 2 * m2 / ( m1 + m2 ), y : u1.y }, angle * -1 );
+		let finalV2 = rotate( {  x : u2.x * ( m1 - m2 ) / ( m1 + m2 ) + u1.x * 2 * m2 / ( m1 + m2 ), y : u2.y }, angle * -1 );
 
 		entity1.velocity.x = finalV1.x;
 		entity1.velocity.y = finalV1.y;
@@ -536,9 +362,9 @@ function updateColorSpeed() {
 
 function updateBrotherStats() {
 
-	$( '#brothers-number' ).html( entities.brothers.length );
+	$( '#brothers-number' ).html( entities.brothers.length == maxBrothers ? 'MAX' : entities.brothers.length );
 
-	$( '#brothers-progress' ).stop().animate( { width : ( Math.min( entities.brothers.length / 10, 100 ) ) + '%' }, 50 );
+	$( '#brothers-progress' ).stop().animate( { width : ( Math.min( entities.brothers.length / maxBrothers * 100, 100 ) ) + '%' }, 50 );
 }
 
 function updateRGB() {
@@ -587,9 +413,9 @@ function changeColor() {
 
 function updateColor() {
 
-	let colorString = 'rgb(' + color.R + ',' + color.G + ',' + color.B + ')';
+	color.hex = '#' + toHex( color.R ) + toHex( color.G ) + toHex( color.B );
 
-	$( '*' ).css( { color : colorString } );
+	$( '*' ).css( { color : color.hex } );
 }
 
 function openChangelog() {
@@ -606,4 +432,32 @@ function closeChangelog() {
 
 	$( '.wrapper' ).children().stop().css( { opacity : 1 } );
 	$( '.changelog-wrapper' ).hide();
+}
+
+function updatePreset( newPreset ) {
+
+	if ( newPreset ) currentPreset = newPreset.target.value;
+
+	brotherImg = $( '#' + presets[ currentPreset ].brother )[0],
+	brotherSpeech = speech[ currentPreset ];
+	loopsImg = $( '#' + presets[ currentPreset ].loops )[0];
+
+	entities.brothers.forEach( brother => {
+
+		brother.setImg( brotherImg );
+		brother.setSpeech( brotherSpeech );
+	} );
+	entities.loops.forEach( loops => {
+
+		loops.setImg( loopsImg );
+	} );
+}
+
+function toHex( int ) {
+
+	let hex = Number( int ).toString( 16 );
+
+	if ( hex.length < 2 ) hex = "0" + hex;
+
+	return hex;
 }

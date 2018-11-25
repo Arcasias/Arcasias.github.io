@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  	<script src="src/js/text.js"></script>
   	<script src="src/js/main.js"></script>
   	<script src="src/js/Entity.js"></script>
   	<script src="src/js/Brother.js"></script>
@@ -54,6 +55,21 @@
 		  		</div>
 	  		</fieldset>
 	  		<fieldset>
+	  			<div class="fieldset-header title">Appearance</div>
+	  			<hr/>
+	  			<div class="fieldset-content">
+	  				<div class="field">
+		  				<label class="label">Preset</label>
+		  				<select id="preset" class="select input" data-default="brother">
+		  					<option value="brother">Bröther</option>
+		  					<option value="antoine">Antoine</option>
+		  					<option value="julien">Julien</option>
+		  					<option value="florent">Florent</option>
+		  				</select>
+		  			</div>
+		  		</div>
+	  		</fieldset>
+	  		<fieldset>
 	  			<div class="fieldset-header title">RGB</div>
 	  			<hr/>
 	  			<div class="fieldset-content">
@@ -77,8 +93,14 @@
 		  		<button id="button-open-changelog" class="button button-small">?</button>
 		  	</div>
 	  	</aside>
-  		<img id="brother" src="src/img/brother.png" alt="brother" style="position: absolute; left: -9999px;"/>
-  		<img id="loop" src="src/img/loops.png" alt="loops" style="position: absolute; left: -9999px;"/>
+  		<img id="brother" class="template" src="src/img/brother.png" alt="brother"/>
+  		<img id="antoine" class="template" src="src/img/antoine.png" alt="antoine"/>
+  		<img id="julien" class="template" src="src/img/julien.png" alt="julien"/>
+  		<img id="florent" class="template" src="src/img/florent.png" alt="florent"/>
+  		<img id="loops" class="template" src="src/img/loops.png" alt="loops"/>
+  		<img id="soup" class="template" src="src/img/soup.png" alt="soup"/>
+  		<img id="rope" class="template" src="src/img/rope.png" alt="rope"/>
+  		<img id="emc2" class="template" src="src/img/emc2.png" alt="emc2"/>
 		<div class="main-wrapper">
 			<canvas id="game-area"></canvas>
 		</div>
@@ -88,7 +110,14 @@
 	  			<button id="button-close-changelog" class="button changelog-close">&times;</button>
 	  		</div>
 	  		<div class="changelog-content">
-	  			<div class="version-title">v0.4.5 - Interface</div>
+	  			<div class="version-title">v0.5 - Appearances</div>
+  				<hr/>
+  				<ul>
+  					<li>You can now change the <b>appearance</b> of both brothers and loops bowls</li>
+  					<li>Changing the look of the brothers will also change their <b>text lines</b></li>
+  					<li>Added <b>maximum brothers capacity</b>. You can't exceed <b>1000</b> brothers at the same time</li>
+  				</ul>
+	  			<div class="version-title">v0.4 - Interface</div>
   				<hr/>
   				<ul>
   					<li>Improved <b>colors</b>. Yeah, that's a thing</li>
@@ -102,7 +131,6 @@
   					<li>Added a <b>calorific value</b> to the lööps, see what happens when they eat too much...</li>
   					<li>Added a <b>growth</b> rate determining how much the hive grows</li>
   					<li>Lööps size only affects newly created lööps now. It makes more sense, right ?</li>
-  					<li>Louis can't <b>suck</b> my <b>cock</b> anymore</li>
   					<li>Fixed <b>hovering</b> problems</li>
   				</ul>
   				<div class="version-title">v0.2 - Feed the bröthers</div>
@@ -118,7 +146,6 @@
   				<ul>
   					<li>Added <b>changelog</b> to keep track of what's been done</li>
   					<li>Added <b>shortcuts</b> : <b>F1</b> to open the changelog and <b>F1</b> or <b>Esc</b> to close it</li>
-  					<li>Louis is now able to <b>suck</b> my <b>cock</b></li>
   					<li>You can add <b>lööps</b> by clicking in the game area</li>
   				</ul>
 	  		</div>

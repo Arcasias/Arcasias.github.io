@@ -470,9 +470,22 @@ button {
 	}
 }
 
+.select {
+
+	padding: 5px;
+	font-family: $mainFont;
+	color: $gold;
+	background-color: $pale_black;
+	border : none;
+	outline: none;
+	cursor: pointer;
+}
+
 .template {
 
-	display: none;
+	left: -9999px;
+	position: absolute;
+	height: 300px;
 }
 
 .lock {
