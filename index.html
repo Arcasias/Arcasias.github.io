@@ -3,20 +3,18 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-  	<script src="src/js/text.js"></script>
-  	<script src="src/js/main.js"></script>
-  	<script src="src/js/Entity.js"></script>
-  	<script src="src/js/Brother.js"></script>
-  	<script src="src/js/Loop.js"></script>
+    <script src="src/js/util.js"></script>
+  	<script src="src/js/main.js" type="module"></script>
   	<link rel="stylesheet" href="src/css/style.css">
   	<title>LööPS</title>
 </head>
 <body>
 	<div class="wrapper">
 	  	<header class="header-wrapper">
-	  		<div class="status-text title">WELCOME TO LÖÖPS</div>
+	  		<div class="status-text title">
+                WELCOME TO LÖÖPS -
+                <span id="fps">0</span>fps
+            </div>
 	  		<button id="button-reset" class="button">RESET</button>
 	  		<button id="button-start-stop" class="button start">START</button>
 	  	</header>
@@ -25,6 +23,26 @@
 	  			<div class="fieldset-header title">Bröthers</div>
 	  			<hr/>
 	  			<div class="fieldset-content">
+		  			<div class="field">
+  						<div class="radio-group">
+  							<label>
+  								<input class="change-look" type="radio" name="brother-look" value="brother" checked="checked"/>
+  								<div class="preview"><img src="src/img/brother.png" alt="brother"/></div>
+  							</label>
+  							<label>
+  								<input class="change-look" type="radio" name="brother-look" value="antoine"/>
+  								<div class="preview"><img src="src/img/antoine.png" alt="antoine"/></div>
+  							</label>
+  							<label>
+  								<input class="change-look" type="radio" name="brother-look" value="julien"/>
+  								<div class="preview"><img src="src/img/julien.png" alt="julien"/></div>
+  							</label>
+  							<label>
+  								<input class="change-look" type="radio" name="brother-look" value="florent"/>
+  								<div class="preview"><img src="src/img/florent.png" alt="florent"/></div>
+  							</label>
+  						</div>
+  					</div>
 	  				<div class="field">
 		  				<label class="label">Growth</label>
 		  				<input id="brothers-growth" class="trackbar lock input" type="range" min="1" max="100" value="10" data-default="10"/>
@@ -48,24 +66,29 @@
 	  			<div class="fieldset-header title">Lööps</div>
 	  			<hr/>
 	  			<div class="fieldset-content">
+		  			<div class="field">
+  				  		<div class="radio-group">
+  				  			<label>
+  				  				<input class="change-look" type="radio" name="loops-look" value="loops" checked="checked"/>
+  				  				<div class="preview"><img src="src/img/loops.png" alt="loops"/></div>
+  				  			</label>
+  				  			<label>
+  				  				<input class="change-look" type="radio" name="loops-look" value="soup"/>
+  				  				<div class="preview"><img src="src/img/soup.png" alt="soup"/></div>
+  				  			</label>
+  				  			<label>
+  				  				<input class="change-look" type="radio" name="loops-look" value="rope"/>
+  				  				<div class="preview"><img src="src/img/rope.png" alt="rope"/></div>
+  				  			</label>
+  				  			<label>
+  				  				<input class="change-look" type="radio" name="loops-look" value="emc2"/>
+  				  				<div class="preview"><img src="src/img/emc2.png" alt="emc2"/></div>
+  				  			</label>
+  				  		</div>
+		  			</div>
 	  				<div class="field">
 		  				<label class="label">Size</label>
 		  				<input id="loops-size" class="trackbar input" type="range" min="1" max="100" value="20" data-default="20"/>
-		  			</div>
-		  		</div>
-	  		</fieldset>
-	  		<fieldset>
-	  			<div class="fieldset-header title">Appearance</div>
-	  			<hr/>
-	  			<div class="fieldset-content">
-	  				<div class="field">
-		  				<label class="label">Preset</label>
-		  				<select id="preset" class="select input" data-default="brother">
-		  					<option value="brother">Bröther</option>
-		  					<option value="antoine">Antoine</option>
-		  					<option value="julien">Julien</option>
-		  					<option value="florent">Florent</option>
-		  				</select>
 		  			</div>
 		  		</div>
 	  		</fieldset>
@@ -104,12 +127,18 @@
 		<div class="main-wrapper">
 			<canvas id="game-area"></canvas>
 		</div>
-	  	<div class="changelog-wrapper">
+	  	<div id="changelog" class="changelog-wrapper">
 	  		<div class="changelog-header">
 	  			<div class="changelog-title title">Loops - changelog</div>
 	  			<button id="button-close-changelog" class="button changelog-close">&times;</button>
 	  		</div>
 	  		<div class="changelog-content">
+	  			<div class="version-title">v0.6 - Targets</div>
+  				<hr/>
+  				<ul>
+  					<li><b>Appearances</b> of brothers and loops can now be tweaked <b>separately</b></li>
+  					<li>Each <b>brother</b> will hunt for one specific type of <b>loops</b></li>
+  				</ul>
 	  			<div class="version-title">v0.5 - Appearances</div>
   				<hr/>
   				<ul>

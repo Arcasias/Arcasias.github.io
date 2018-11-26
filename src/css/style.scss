@@ -10,7 +10,6 @@ $pale_red : #a02020;
 $mainFont : "Gill Sans MT";
 
 html {
-
 	width: 100%;
 	height: 100%;
 	color: $black;
@@ -18,27 +17,23 @@ html {
 }
 
 body {
-
 	width: 100%;
 	height: 100%;
 	margin: 0;
 }
 
 fieldset {
-
 	margin: 0;
 	padding: 0;
 	border: none;
 }
 
 button {
-
 	user-select: none;
 	background-color: transparent;
 }
 
 .wrapper {
-
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -46,57 +41,47 @@ button {
 }
 
 .header-wrapper {
-
 	flex: 1 100%;
 	background-color: $black;
 	display: flex;
 	align-items: center;
 
 	* {
-
 		color: $gold;
 		font-size: 30px;
 	}
 
 	.status-text {
-
 		flex: 1;
 		padding: 20px;
 	}
 
 	.button {
-
 		height: 100%;
 	}
 
 	.start {
-
 		background-color: $gold;
 
 		&:hover {
-
 			background-color: $pale_gold;
 		}
 	}
 
 	.stop {
-
 		background-color: $red;
 
 		&:hover {
-
 			background-color: $pale_red;
 		}
 	}
 
 	#button-start-stop {
-
 		color: #fff;
 	}
 }
 
 .footer-wrapper {
-
 	flex: 1 100%;
 	padding: 10px 20px;
 	background-color: $black;
@@ -104,28 +89,24 @@ button {
 	align-items: center;
 
 	* {
-
 		color: $gold;
 		font-size: 30px;
 		background-color: transparent;
 	}
 
 	#brothers-number-wrapper {
-
 		flex: 1;
 		max-width: 250px;
 		padding: 0;
 	}
 
 	.progress-bar {
-
 		flex: 4;
 		height: 60%;
 	}
 }
 
 .side-bar-wrapper {
-
 	flex: 1;
 	max-width: 400px;
 	background-color: $white;
@@ -134,9 +115,7 @@ button {
 	justify-content: space-between;
 
 	fieldset {
-
 		hr {
-
 			width: 90%;
 			height: 3px;
 			margin: 0 5%;
@@ -145,7 +124,6 @@ button {
 		}
 
 		.fieldset-header {
-
 			padding: 5%;
 			color: $gold;
 			font-weight: bold;
@@ -153,53 +131,50 @@ button {
 		}
 
 		.fieldset-content {
-
 			padding: 5%;
 
 		  	.field {
-
 		  		margin-bottom: 10px;
 		  		display: flex;
 
 		  		.label {
-
 		  			flex: 1;
 		  			font-size: 16px;
+					display: flex;
+					align-items: center;
 		  		}
 
 		  		.input {
-
 		  			flex: 2;
+		  		}
+
+		  		.radio-group {
+		  			flex: 3;
 		  		}
 			}
 		}
 	}
 
 	.button-group {
-
 		display: flex;
 		background-color: $grey;
 
 		.button {
-
 			font-size: 26px;
 			flex: 1;
 		}
 
 		.button-small {
-
 			flex: 0.2;
 		}
 	}
 }
 
 .main-wrapper {
-
 	flex: 3;
 	height: 750px;
 
 	#game-area {
-
 		width: 100%;
 		height: 100%;
 		background-color: white;
@@ -212,7 +187,6 @@ button {
 		align-items: center;
 
 		.spawn {
-
   			padding: 10px;
   			color: $gold;
   			background-color: $black;
@@ -223,26 +197,22 @@ button {
   		}
 
   		#spawn-goal {
-
   			left: 74%;
   			top: 32%;
   		}
 
   		#spawn-followers {
-
   			left: 21.5%;
   			top: 32%;
   		}
 
   		#goal {
-
   			left: 75%;
   			z-index: 99999;
   			position: absolute;
   			cursor: pointer;
 
 			.goal-txt {
-
 				transform: translateX( -100% );
 				max-width: 400px;
 				padding: 8px;
@@ -254,7 +224,6 @@ button {
 			}
 
 			.goal-img {
-
 				width: 70px;
 				border: 10px transparent solid;
 				border-radius: 100%;
@@ -262,13 +231,11 @@ button {
   		}
 
   		.follower {
-
   			left: 25%;
   			position: absolute;
   			cursor: pointer;
 
 			.follower-txt {
-
 				transform: translateX( -100% );
 				max-width: 400px;
 				padding: 8px;
@@ -280,7 +247,6 @@ button {
 			}
 
 			.follower-img {
-
 				width: 50px;
 				border: 10px transparent solid;
 				border-radius: 100%;
@@ -290,53 +256,46 @@ button {
 }
 
 .changelog-wrapper {
-	
 	top: 50%;
 	left: 50%;
 	transform: translate( -50%, -50% );
 	width: 600px;
 	background-color: $black;
+	z-index: 9999;
 	position: absolute;
 	display: none;
 
 	.changelog-header {
-
 		display: flex;
 		flex-flow: row wrap;
 
 		* {
-
 			padding: 25px;
 			font-size: 30px;
 		}
 
 		.changelog-title {
-
 			flex: 1;
 			color: $gold;
 		}
 
 		.changelog-close {
-
 			flex: 0.1;
 			background-color: transparent;
 
 			&:hover {
-
 				background-color: $pale_black;
 			}
 		}
 	}
 
 	hr {
-
 		height: 2px;
 		border: none;
 		background-color: $gold;
 	}
 
 	.changelog-content {
-
 		height: 500px;
 		margin: 0 20px 20px 20px;
 		padding: 15px;
@@ -344,7 +303,6 @@ button {
 		overflow-y: scroll;
 
 		.version-title {
-
 			color: $gold;
 			font-size: 20px;
 			font-weight: bold;
@@ -353,7 +311,6 @@ button {
 }
 
 .button {
-
 	width: 150px;
 	padding: 20px;
 	font-family: $mainFont;
@@ -364,19 +321,16 @@ button {
 	cursor: pointer;
 
 	&:hover {
-
 		color: $pale_gold;
 		background-color: $pale_black;
 	}
 }
 
 .progress-bar {
-
 	padding: 0;
 	background-color: $pale_black;
 
 	.progress {
-
 		width: 0;
 		height: 100%;
 		padding: 0;
@@ -387,7 +341,6 @@ button {
 }
 
 .trackbar {
-
     -webkit-appearance: none;
     width: 100%;
     height: 10px;
@@ -397,7 +350,6 @@ button {
     outline: none;
 
     &::-webkit-slider-thumb {
-    	
 	    -webkit-appearance: none;
 	    width: 10px;
 	    height: 20px;
@@ -407,7 +359,6 @@ button {
     }
 
     &::-moz-range-thumb {
-
         width: 25px;
         height: 25px;
         background: $gold;
@@ -415,11 +366,9 @@ button {
 }
 
 .checkbox {
-
 	display: flex;
 
 	.cb-container {
-
 		flex: 1;
 		padding: 0 !important;
 	    margin: 0 !important;
@@ -428,24 +377,20 @@ button {
 	    user-select: none;
 
 		.cb-checkbox {
-
 		    position: absolute;
 		    opacity: 0;
 		    cursor: pointer;
 
 		    &:checked ~ .checkmark {
-
 			    background-color: $gold;
 			}
 
 			&:checked ~ .checkmark:after {
-
 			    display: block;
 			}
 		}
 
 		.checkmark {
-
 		    top: 0;
 		    right: 0;
 		    height: 22px;
@@ -454,7 +399,6 @@ button {
 		    position: absolute;
 
 		    &:after {
-
 			    content: "";
 			    position: absolute;
 			    display: none;
@@ -470,46 +414,72 @@ button {
 	}
 }
 
-.select {
-
-	padding: 5px;
-	font-family: $mainFont;
-	color: $gold;
+#select-bar {
+	width: 0;
 	background-color: $pale_black;
-	border : none;
-	outline: none;
-	cursor: pointer;
+	position: absolute;
+	z-index: 9;
+}
+
+.radio-group {
+	width: 100%;
+	height: 100%;
+
+	label {
+		width: 0;
+		height: 0;
+
+		.preview {
+			width: 30px;
+			height: 30px;
+			display: inline-block;
+			padding: 5px;
+			cursor: pointer;
+			border-radius: 100%;
+			transition: border-color 0.2s;
+			text-align: center;
+		}
+
+		.preview img {
+			max-height: 100%;
+			max-width: 100%;
+		}
+
+		[type=radio] {
+			width: 0;
+			height: 0;
+			display: none;
+		}
+
+		[type=radio]:checked + .preview {
+			background-color: $pale_gold;
+		}
+	}
 }
 
 .template {
-
 	left: -9999px;
 	position: absolute;
 	height: 300px;
 }
 
 .lock {
-
 	transition: opacity 0.2s;
 }
 
 .locked {
-
 	opacity: 0.5;
 
     &::-webkit-slider-thumb {
-
 		cursor: auto;
 	}
 }
 
 .hide-cursor {
-
 	cursor: none !important;
 }
 
 @media all and ( max-width: 800px ) {
-
 	.main-wrapper { flex: 0 100%; order: 1; }
 	.side-bar-wrapper { flex: 0 100%; order: 2; max-width: 100%; }
 	.footer-wrapper { order: 3; }

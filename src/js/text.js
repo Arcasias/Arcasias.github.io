@@ -1,9 +1,12 @@
-const speech = {
-
-	brother : {
-
-		default : [
-
+export const TARGETS = {
+	brother: 'loops',
+	antoine: 'soup',
+	julien: 'rope',
+	florent: 'emc2',
+}
+export const SPEECH = {
+	brother: {
+		default: [
 			"Bröther",
 			"Bröther pls",
 			"Bröther, may I have some lööps ?",
@@ -19,8 +22,7 @@ const speech = {
 			"Fuck I just want some lööps",
 			"It's breakfast time",
 		],
-		pending : [
-
+		pending: [
 			"Cant't wait to be started !",
 			"What are you waiting for ?",
 			"Are you planning to let us be ?",
@@ -29,8 +31,7 @@ const speech = {
 			"I'm waiting",
 			"I'll wait as long as I must",
 		],
-		dragged : [
-
+		dragged: [
 			"Hey !",
 			"Why ?",
 			"But why",
@@ -54,8 +55,7 @@ const speech = {
 			"Oh my god",
 			"I can't believe you just did that",
 		],
-		dropped : [
-
+		dropped: [
 			"That was mean",
 			"Not nice, bröther",
 			"You should be ashamed",
@@ -67,8 +67,7 @@ const speech = {
 			"Time to get these lööps",
 			"Let's do this",
 		],
-		seek : [
-
+		seek: [
 			"Seek and consume",
 			"Target aquired",
 			"Lööps spotted",
@@ -80,8 +79,7 @@ const speech = {
 			"Dinner is served",
 			"This one is mine",
 		],
-		found : [
-
+		found: [
 			"I got the lööps !",
 			"Yesss !",
 			"Yummy !",
@@ -92,27 +90,22 @@ const speech = {
 			"Delicious",
 			"Thanks bröther",
 		],
-		notfound : [
-
+		notfound: [
 			"I'll get it next time",
 			"Nooooooooo",
 			"Damn",
 			"I was too slow",
 			"No lööps for me I guess",
 		],
-		exploding : [
-
+		exploding: [
 			"Uuuuuuuurrrrrrr",
 			"I got too much lööps...",
 			"Oh, here we go",
 			"Mr Stark I don't feel so good...",
 		],
 	},
-
-	antoine : {
-
-		default : [
-
+	antoine: {
+		default: [
 			"I'm sick, I need soup",
 			"Please give soup",
 			"Aaaaaaaaah",
@@ -124,38 +117,33 @@ const speech = {
 			"I'm already Tracer",
 			"Please I'm sick bring me soup",
 		],
-		pending : [
-
+		pending: [
 			"Hmmmm...",
 			"What are you waiting for ?",
 			"Appuie sur le bouton !",
 			"Le bouton ! Le bouton !",
 		],
-		dragged : [
-
+		dragged: [
 			"Ouch !",
 			"Hey ! Tu fais mal à mes cheveux !",
 			"Repose-moi !",
 			"Aïe !",
 			"Heeey !",
 		],
-		dropped : [
-
+		dropped: [
 			"C'était pas très gentil",
 			"C'est bon pour une fois",
 			"Je me disais bien",
 			"Merci pour le trajet",
 		],
-		seek : [
-
+		seek: [
 			"SOUP !",
 			"DU POTAGE !",
 			"Oh oui ! Du potage !",
 			"Vite, du potage !",
 			"I want this soup",
 		],
-		found : [
-
+		found: [
 			"Miam miam",
 			"Je me sens déjà mieux",
 			"Merciiii",
@@ -167,8 +155,7 @@ const speech = {
 			"Je contrôle la soupe",
 			"J'adore le potage",
 		],
-		notfound : [
-
+		notfound: [
 			"Pas de potage pour moi je suppose",
 			"Je voulais du potage",
 			"I wanted this damn soup",
@@ -177,8 +164,7 @@ const speech = {
 			"Elle avait l'air bonne",
 			"Dommage",
 		],
-		exploding : [
-
+		exploding: [
 			"Uuuuuuuurrrrrrr",
 			"Trop de souuupe",
 			"Oulah je me sens pas bien",
@@ -186,11 +172,8 @@ const speech = {
 			"J'ai bu trop de potage moi",
 		],
 	},
-
-	julien : {
-
-		default : [
-
+	julien: {
+		default: [
 			"*Click* Noice",
 			"I want to die",
 			"Why am I not dying ?",
@@ -202,15 +185,13 @@ const speech = {
 			"Existence is pain",
 			"Why am I alive ?",
 		],
-		pending : [
-
+		pending: [
 			"Can I die already ?",
 			"Hurry up and hit that start button",
 			"Please start so I can die",
 			"I WANNA DIE !",
 		],
-		dragged : [
-
+		dragged: [
 			"*moans*",
 			"Uuuuuuuh",
 			"Aaaaahhhhhh",
@@ -220,37 +201,32 @@ const speech = {
 			"Oh yeah, just like that",
 			"Keep it on boi",
 		],
-		dropped : [
-
+		dropped: [
 			"We were only getting started",
 			"Finished already ?",
 			"I like pain, do it again",
 			"Again ! Again !",
 			"Please strangle me harder next time",
 		],
-		seek : [
-
+		seek: [
 			"Is that a rope ?",
 			"Finally ! Death !",
 			"Oh boi, a rope !",
 			"Yessss !",
 			"Here we go",
 		],
-		found : [
-
+		found: [
 			"What's this shit ? I just got bigger",
 			"Hold on, what ?",
 			"Uh... this isn't working",
 			"Hmmm... this rope is broken",
 		],
-		notfound : [
-
+		notfound: [
 			"Lmao that fucker just got bigger",
 			"HAHAHA jokes on him",
 			"PTDR il est pas mort",
 		],
-		exploding : [
-
+		exploding: [
 			"YESSS ! DEATH !",
 			"FINALLY ! I'M LEAVING THIS WORLD !",
 			"I'M DYING !",
@@ -259,11 +235,8 @@ const speech = {
 			"Farewell, friends",
 		],
 	},
-
-	florent : {
-
-		default : [
-
+	florent: {
+		default: [
 			"Je suis physicien",
 			"Je vous ai déjà dit que j'étais en physique ?",
 			"Ah au fait, je suis physicien",
@@ -279,17 +252,16 @@ const speech = {
 			"Vous avez pas une idée de bon jeu multi ?",
 			"J'ai envie d'insulter Ophélie",
 			"Ophélie kys",
+			"Les ingénieurs pensent toujours avoir raison",
 		],
-		pending : [
-
+		pending: [
 			"Bah bravo, je peux plus avancer",
 			"Stop me bloquer please",
 			"Si tu me fais pas avancer je te ban",
 			"Je vais te péter la gueule",
 			"Fais-moi avancer ou je révèle tous tes secrets",
 		],
-		dragged : [
-			
+		dragged: [
 			"Hum, tu fais quoi là ?",
 			"Espèce d'ingénieur",
 			"Stop me drag merci",
@@ -297,16 +269,14 @@ const speech = {
 			"Arrête de me toucher sale pédé",
 			"Non mais oh",
 		],
-		dropped : [
-			
+		dropped: [
 			"Si tu étais en physique je t'aurais remercié",
 			"Retourne faire tes merdes d'ingénieur maintenant",
 			"C'est pas ça qui va augmenter la taille de ton sexe",
 			"C'est pas trop tôt",
 			"On n'a pas tous autant de temps libre ici",
 		],
-		seek : [
-			
+		seek: [
 			"Attends, mais cette équation est fausse",
 			"Hey ! C'est quoi ça ?",
 			"Oh boi, une équation",
@@ -314,8 +284,7 @@ const speech = {
 			"Qu'est-ce que c'est que ce truc ?",
 			"*Sort son marqueur et son bloc-note*",
 		],
-		found : [
-			
+		found: [
 			"C'est pas un ingénieur qui l'aurait résolue",
 			"Ouah c'était de la merde",
 			"Et boum, c'est résolu",
@@ -323,8 +292,7 @@ const speech = {
 			"En étant physicien c'était franchement pas dur",
 			"C'est pas Ophélie qui aurait pu résoudre ça",
 		],
-		notfound : [
-
+		notfound: [
 			"Bah, je suis sûr que c'était de la merde de toute façon",
 			"Je laisse ça aux ingénieurs",
 			"Pfff... nul",
@@ -332,8 +300,7 @@ const speech = {
 			"Je fais la prochaine, ok ?",
 			"Je suis sûr qu'il l'a mal résolue",
 		],
-		exploding : [
-			
+		exploding: [
 			"Je crois que mon ego est devenu trop gros",
 			"Ma mauvaise foi déborde",
 			"Mon arrogance me fait exploser",

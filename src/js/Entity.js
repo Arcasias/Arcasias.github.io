@@ -1,189 +1,247 @@
-class Entity {
-	
-	constructor( x, y, img ) {
+import { BROTHER, DOM, LOOP, PARAMS, ENTITIES, SPEECH, TARGETS } from './config.js';
 
-		this.x = x;
-		this.y = y;
-		this.img = img;
-		this.w = img.clientWidth;
-		this.h = img.clientHeight;
-		this.speech = preset.speech;
-		this.size = 1;
-		this.mass = 1;
-		this.speed = 1;
-		this.velocity = { x : 0, y : 0 };
-		this.moving = true;
-		this.dragging = false;
-		this.arrayType = undefined;
+let _ID = -1;
+const newId = () => {
+	_ID ++;
+	return _ID;
+}
+
+export default class Entity {
+	
+	/**
+	 * @constructor
+	 */
+	constructor(type, options) {
+		if (! type) {
+			throw new Error(`Missing argument : \"type\".`);
+		}
+		this._id = newId();
+		this._deleted = false;
+
+		this._type = type;
+		this._x = options.x || 0;
+		this._y = options.y || 0;
+		this._img = options.img || $('#' + type);
+		this._w = options.w || this._img.clientWidth;
+		this._h = options.h || this._img.clientHeight;
+		this._size = options.size || 1;
+		this._mass = options.mass || 1;
+		this._speed = options.speed || 1;
+		this._velocity = options.velocity || { x : 0, y : 0 };
+		this._moving = options.moving || true;
+		this._dragging = options.dragging || false;
+		this._arrayType = options.arrayType || undefined;
+		this._zindex = options.zindex || 0;
 	}
-	
-	update() {
 
-		this.draw();
+	/**
+	 * @property {number} id Entity id
+	 */
+	get id() {
+		return this._id;
+	}
 
-		if ( true === collisions ) {
+	/**
+	 * @property {boolean} deleted Checks wether the entity has been deleted
+	 */
+	get deleted() {
+		return this._deleted;
+	}
 
-			for ( let i = 0; i < Object.keys( entities ).length; i ++ ) {
-
-				let arr = entities[ Object.keys( entities )[i] ];
-
-				for ( let j = 0; j < arr.length; j ++ ) {
-
-					if ( this === arr[j] ) continue;
-
-					if ( detectCollision( this, arr[j] ) ) resolveCollision( this, arr[j] );
-				}
-			}
+	/**
+	 * @property {number} x Position on x axis
+	 */
+	get x() {
+		return this._x - this.w / 2;
+	}
+	set x(x) {
+		if (isNaN(x)) {
+			throw new TypeError("\"x\" must of type \"number\"");
 		}
+		this._x = x;
+	}
 
-		if ( this.getX() <= 0 || canvas.width <= this.getX() + this.getW() ) this.velocity.x = this.velocity.x * -1;
-		if ( this.getY() <= 0 || canvas.height <= this.getY() + this.getH() ) this.velocity.y = this.velocity.y * -1;
-
-		if ( this.hovered() ) {
-
-			if ( this !== hoveredEntity ) hoveredEntity = this;
-
-		} else {
-
-			if ( this.dragging === false && this === hoveredEntity ) hoveredEntity = undefined;
+	/**
+	 * @property {number} y Position on y axis
+	 */
+	get y() {
+		return this._y - this.h / 2;
+	}
+	set y(y) {
+		if (isNaN(y)) {
+			throw new TypeError("\"y\" must of type \"number\"");
 		}
+		this._y = y;
+	} 
 
-		if ( true === this.dragging ) {
-
-			this.setX( mouse.x );
-			this.setY( mouse.y );
+	/**
+	 * @property {number} w Entity width
+	 */
+	get w() {
+		return this._w * this._size;
+	}
+	set w(w) {
+		if (isNaN(w)) {
+			throw new TypeError("\"w\" must of type \"number\"");
 		}
+		this._w = w;
+	}
+
+	/**
+	 * @property {number} h Entity height
+	 */
+	get h() {
+		return this._h * this._size;
+	}
+	set h(h) {
+		if (isNaN(h)) {
+			throw new TypeError("\"h\" must of type \"number\"");
+		}
+		this._h = h;
+	}
+
+	/**
+	 * @property {string} type Entity type
+	 */
+	get type() {
+		return this._type;
+	}
+	set type(type) {
+		if (typeof type !== 'string') {
+			throw new TypeError("\"type\" must of type \"string\"");
+		}
+		this._type = type;
+		this._img = $('#' + type);
+		this._w = this._img.clientWidth;
+		this._h = this._img.clientHeight;
+	}
+
+	/**
+	 * @property {number} w Entity mass
+	 */
+	get mass() {
+		return this._mass;
+	}
+	set mass(mass) {
+		if (isNaN(mass)) {
+			throw new TypeError("\"mass\" must be of type \"number\"");
+		}
+		this._mass = mass;
+	}
+
+	/**
+	 * @property {number} w Entity speed factor
+	 */
+	get speed() {
+		return this._speed;
+	}
+	set speed(speed) {
+		if (isNaN(speed)) {
+			throw new TypeError("\"speed\" must be of type \"number\"");
+		}
+		this._speed = speed;
+	}
+
+	/**
+	 * @property {object} w Entity velocity (object having x and y properties)
+	 */
+	get velocity() {
+		return this._velocity;
+	}
+	set velocity(velocity) {
+		if (typeof dragging !== 'object') {
+			throw new TypeError("\"velocity\" must be of type \"object\"");
+		}
+		this._velocity = velocity;
+	}
+
+	/**
+	 * @property {boolean} w Entity dragged state
+	 */
+	get dragging() {
+		return this._dragging;
+	}
+	set dragging(dragging) {
+		if (typeof dragging !== 'boolean') {
+			throw new TypeError("\"dragging\" must be of type \"boolean\"");
+		}
+		this._dragging = dragging;
 	}
 
 	draw() {
+		PARAMS.c.save();
 
-		c.save();
+		PARAMS.c.globalAlpha = this.opacity;
+		PARAMS.c.drawImage(this._img, this.x, this.y, this.w, this.h);
 
-		c.globalAlpha = this.opacity;
-		c.drawImage( this.img, this.getX(), this.getY(), this.getW(), this.getH() );
-
-		c.restore();
-	}
-
-	getX() {
-
-		return this.x - this.getW() / 2;
-	}
-
-	setX( x ) {
-
-		this.x = x;
-	}
-
-	getY() {
-
-		return this.y - this.getH() / 2;
-	}
-
-	setY( y ) {
-
-		this.y = y;
-	}
-
-	getW() {
-
-		return this.w * this.size;
-	}
-
-	getH() {
-
-		return this.h * this.size;
-	}
-
-	getImg() {
-
-		return this.img;
-	}
-
-	setImg( img ) {
-
-		this.img = img;
-		this.w = img.clientWidth;
-		this.h = img.clientHeight;
-	}
-
-	getSize() {
-
-		return this.size;
-	}
-
-	setSize( size ) {
-
-		this.size = size;
-	}
-
-	getMass() {
-
-		return this.mass;
-	}
-
-	setMass( mass ) {
-
-		this.mass = mass;
-	}
-
-	getSpeed() {
-
-		return this.speed;
-	}
-
-	setSpeed( speed ) {
-
-		this.speed = speed;
-	}
-
-	getVelocity() {
-
-		return this.velocity;
-	}
-
-	setVelocity( x = 0, y = 0 ) {
-
-		this.velocity.x = x;
-		this.velocity.y = y;
+		PARAMS.c.restore();
 	}
 
 	hovered() {
-
-		return ( ( this.getX() < mouse.x
-			&& mouse.x < this.getX() + this.getW()
-			&& this.getY() < mouse.y
-			&& mouse.y < this.getY() + this.getH() ) );
-	}
-
-	toFront() {
-
-		let thisIndex = entities[ this.arrayType ].indexOf( this );
-
-		let stamp = entities[ this.arrayType ][ entities[ this.arrayType ].length - 1 ];
-		entities[ this.arrayType ][ entities[ this.arrayType ].length - 1 ] = this;
-		entities[ this.arrayType ][ thisIndex ] = stamp;
-	}
-
-	startDragging() {
-
-		this.toFront();
-
-		this.dragging = true;
-
-		this.setX( mouse.x );
-		this.setY( mouse.y );
-	}
-
-	stopDragging() {
-
-		this.dragging = false;
+		return ((this.x < PARAMS.mouse.x
+			&& PARAMS.mouse.x < this.x + this.w
+			&& this.y < PARAMS.mouse.y
+			&& PARAMS.mouse.y < this.y + this.h));
 	}
 
 	remove() {
+		if (this === ENTITIES.hovered) {
+			ENTITIES.hovered = null;
+		}
+		this._deleted = true;
+		ENTITIES[this._arrayType].splice(ENTITIES[this._arrayType].indexOf(this), 1);
+	}
 
-		if ( this === hoveredEntity ) hoveredEntity = undefined;
+	startDragging() {
+		this.toFront();
 
-		entities[ this.arrayType ].splice( entities[ this.arrayType ].indexOf( this ), 1 );
+		this._dragging = true;
+
+		this._x = PARAMS.mouse.x;
+		this._y = PARAMS.mouse.y;
+	}
+
+	stopDragging() {
+		this._dragging = false;
+	}
+
+	toFront() {
+		let thisIndex = ENTITIES[this._arrayType].indexOf(this);
+		let stamp = ENTITIES[this._arrayType][ENTITIES[this._arrayType].length - 1];
+
+		ENTITIES[this._arrayType][ENTITIES[this._arrayType].length - 1] = this;
+		ENTITIES[this._arrayType][thisIndex] = stamp;
+	}
+	
+	update() {
+		this.draw();
+
+		if (PARAMS.collisions) {
+			ENTITIES.brothers.forEach(brother => {
+				if (this !== brother && detectCollision(this, brother)) {
+					resolveCollision(this, brother);
+				}
+			});
+			ENTITIES.loops.forEach(loop => {
+				if (this === loop && detectCollision(this, loop)) {
+					resolveCollision(this, loop);
+				}
+			});
+		}
+		if (this.x <= 0 || PARAMS.canvas.width <= this.x + this.w) {
+			this._velocity.x = this._velocity.x * -1;
+		}
+		if (this.y <= 0 || PARAMS.canvas.height <= this.y + this.h) {
+			this._velocity.y = this._velocity.y * -1;
+		}
+		if (this.hovered()) {
+			ENTITIES.hovered = this;
+		} else if (! this._dragging && this === ENTITIES.hovered) {
+			ENTITIES.hovered = null;
+		}
+		if (this._dragging) {
+			this._x = PARAMS.mouse.x;
+			this._y = PARAMS.mouse.y;
+		}
 	}
 }
