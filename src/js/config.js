@@ -1,35 +1,34 @@
-const BROTHER = {
+import Player from '/src/js/classes/Player.js';
+
+const HUNTER = {
     img: null,
     growth: null,
     maxAmount: 1000,
-    sizeMax: 1,
-    sizeMin: 0.2,
-    sizeStep: 0.05,
-    speech: {},
+    size: 0.2,
+    species: null,
     speed: null,
-    type: null,
-};
-const DOM = new Map();
-const LOOP = {
-    img: null,
-    nutrition: 0,
-    size: null,
-    sizeMin: 0.05,
-    sizeStep: 0.01,
-    type: null,
+    type: 'hunter',
 };
 const PARAMS = {
     canvas: null,
     collisions: false,
-    color: { R: 255, G: 0, B: 0, hex : '#000000' },
+    collisionSound: new Player(5),
+    color: [255, 0, 0],
+    colorMult: 1,
+    colorPtr: 2,
+    colorSpeed: 1,
     font: '20px Arial',
+    hovered: null,
     mouse: { x: 0, y: 0 },
     running: false,
 };
-const ENTITIES = {
-    brothers: [],
-    loops: [],
-    hovered: null,
+const PREY = {
+    img: null,
+    maxAmount: 1000,
+    nutrition: 0,
+    size: 0.05,
+    species: null,
+    type: 'prey',
 };
 const SPEECH = {
     "brother": {
@@ -342,13 +341,10 @@ const TARGETS = {
     "julien": "rope",
     "florent": "emc2"
 };
-
 export {
-    BROTHER,
-    DOM,
-    LOOP,
+    HUNTER,
     PARAMS,
-    ENTITIES,
+    PREY,
     SPEECH,
     TARGETS,
-}
+};

@@ -1,7 +1,11 @@
-import { BROTHER, DOM, LOOP, PARAMS, ENTITIES, SPEECH, TARGETS } from './config.js';
+import { HUNTER, PREY, PARAMS, SPEECH, TARGETS } from '/src/js/config.js';
+import { MAP as PREYS } from '/src/js/classes/Prey.js';
 import Entity from './Entity.js';
 
-export default class Brother extends Entity {
+export const MAP = new Map();
+export class Hunter extends Entity {
+
+	_type = HUNTER.type;
 
 	/**
 	 * @constructor
@@ -9,8 +13,6 @@ export default class Brother extends Entity {
 	constructor(type, options) {
 		super(type, options);
 
-		this._arrayType = 'brothers';
-		this._speech = options.speech || SPEECH.brother;
 		this._talking = options.talking || false;
 		this._text = {
 			text: options.text || '',
@@ -20,10 +22,8 @@ export default class Brother extends Entity {
 		this._objective = options.objective || null;
 		this._exploding = options.exploding || false;
 		this._explodingIntensity = options.explodingIntensity || 0;
-		this._velocity = options.velocity || {
-			x: Math.random() * 2 - 1,
-			y: Math.random() * 2 - 1,
-		};
+		this.resetVelocity(true);
+		MAP.set(this._id, this);
 	}
 
 	/**
@@ -31,19 +31,9 @@ export default class Brother extends Entity {
 	 */
 	set type(type) {
 		if (type != this._type && this._objective && TARGETS[type] != this._objective) {
-			this._velocity = {
-				x: Math.random() * 2 - 1,
-				y: Math.random() * 2 - 1,
-			};
+			this.resetVelocity(true)
 		}
 		super.type = type;
-	}
-
-	set speech(speech) {
-		if (typeof speech !== 'string') {
-			throw new TypeError("\"speech\" must of type \"string\"");
-		}
-		this._speech = speech;
 	}
 
 	get text() {
@@ -55,7 +45,7 @@ export default class Brother extends Entity {
 		}
 		this._text = {
 			text: text,
-			width: PARAMS.c.measureText(text).width * 2,
+			width: PARAMS.c.measureText(text).width,
 			height: parseInt(PARAMS.font, 10),
 		};
 	}
@@ -67,18 +57,15 @@ export default class Brother extends Entity {
 		super.draw();
 
 		if (this._talking) {
-			PARAMS.c.save();
-		    PARAMS.c.font = PARAMS.font;
+			let color = PARAMS.colorChanging ? `rgb(${PARAMS.color.join(',')})` : '#000000';
 
-		    PARAMS.c.strokeStyle = '#000';
+		    PARAMS.c.strokeStyle = color;
 		    PARAMS.c.strokeRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
-		    PARAMS.c.fillStyle = '#FFF';
+		    PARAMS.c.fillStyle = '#ffffff';
 		    PARAMS.c.fillRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
 		    
-		    PARAMS.c.fillStyle = '#000';
+		    PARAMS.c.fillStyle = color;
 		    PARAMS.c.fillText(this._text.text, this.x + this.w / 2, this.y - 8);
-		    
-		    PARAMS.c.restore();
 		}
 
 		return this;
@@ -89,16 +76,14 @@ export default class Brother extends Entity {
 		this.startTalking('exploding', true);
 
 		setTimeout(() => {
-			for (let i = 0; i < (ENTITIES.brothers.length < BROTHER.maxAmount ? BROTHER.growth : 1); i ++) {
-				if (BROTHER.maxAmount < ENTITIES.brothers.length) break;
-				let options = {
+			for (let i = 0; i < (MAP.size < HUNTER.maxAmount ? HUNTER.growth : 1); i ++) {
+				let newHunter = new Hunter(this._species, {
 					x: this._x,
 					y: this._y,
-					size: BROTHER.sizeMin,
-					speed: BROTHER.speed,
-					speech: this._speech,
-				}
-				ENTITIES.brothers.push(new Brother(this._type, options));
+					size: this._baseSize + (Math.random() * 0.1 - 0.05),
+					speed: this._speed,
+				});
+				MAP.set(newHunter.id, newHunter);
 			}
 			this.remove();
 		}, 2000);
@@ -107,14 +92,18 @@ export default class Brother extends Entity {
 	}
 
 	newObjective() {
-		let feasible = ENTITIES.loops.length ? ENTITIES.loops.filter(loop => loop.type === TARGETS[this._type]) : [];
-
-		if (! feasible.length) {
+		if (PREYS.size === 0) {
 			this._objective = null;
 		} else {
-			this._objective = choice(feasible);
-			if (Math.random() < 1 / (100 / 15)) {
-				this.startTalking(this._objective ? 'seek' : 'notfound', true);
+			let feasible = [...PREYS.values()].filter(prey => prey.species === TARGETS[this._species]);
+
+			if (feasible.length === 0) {
+				this._objective = null;
+			} else {
+				this._objective = choice(feasible);
+				if (Math.random() < 1 / (100 / 15)) {
+					this.startTalking(this._objective ? 'seek' : 'notfound', true);
+				}
 			}
 		}
 		return this;
@@ -131,9 +120,20 @@ export default class Brother extends Entity {
 
 		this._size += nutrition;
 
-		if (BROTHER.sizeMax <= this._size) {
+		if (this._size >= 1) {
 			this.explode();
 		}
+		return this;
+	}
+
+	/**
+	 * @override
+	 */
+	remove() {
+		super.remove()
+
+		MAP.delete(this._id);
+
 		return this;
 	}
 
@@ -158,7 +158,7 @@ export default class Brother extends Entity {
 
 		this.toFront();
 
-		this.text = choice(SPEECH[this._speech][context]);
+		this.text = choice(SPEECH[this._species][context]);
 		this._talking = setTimeout(() => {
 			this.stopTalking();
 		}, 2000);
@@ -203,7 +203,7 @@ export default class Brother extends Entity {
 			if (this._objective) {
 				if (this._objective.deleted) {
 					this.newObjective();
-					this._velocity = { x: Math.random() * 2 - 1, y: Math.random() * 2 - 1 };
+					this.resetVelocity(true);
 				} else if (detectCollision(this, this._objective)) {
 					return this.objectiveReached();
 				}
@@ -216,8 +216,8 @@ export default class Brother extends Entity {
 			if (! this._dragging && this._moving) {
 				if (this._objective) {
 					this._velocity = {
-						x: xFromDistance(this.x, this.y, this._objective.x, this._objective.y) * (this.x < this._objective.x ? 1 : -1),
-						y: yFromDistance(this.x, this.y, this._objective.x, this._objective.y) * (this.x < this._objective.x ? 1 : -1),
+						x: xFromDistance(this._x, this._y, this._objective._x, this._objective._y) * (this.x < this._objective.x ? 1 : -1),
+						y: yFromDistance(this._x, this._y, this._objective._x, this._objective._y) * (this.x < this._objective.x ? 1 : -1),
 					};
 				}
 				this._x += this._velocity.x * this._speed;

@@ -11,183 +11,149 @@
 <body>
 	<div class="wrapper">
 	  	<header class="header-wrapper">
-	  		<div class="status-text title">
-                WELCOME TO LÖÖPS -
-                <span id="fps">0</span>fps
-            </div>
+	  		<h1 class="status-text title">LÖÖPS</h1>
 	  		<button id="button-reset" class="button">RESET</button>
 	  		<button id="button-start-stop" class="button start">START</button>
 	  	</header>
-	  	<aside class="side-bar-wrapper">
-	  		<fieldset>
-	  			<div class="fieldset-header title">Bröthers</div>
-	  			<hr/>
-	  			<div class="fieldset-content">
-		  			<div class="field">
-  						<div class="radio-group">
-  							<label>
-  								<input class="change-look" type="radio" name="brother-look" value="brother" checked="checked"/>
-  								<div class="preview"><img src="src/img/brother.png" alt="brother"/></div>
-  							</label>
-  							<label>
-  								<input class="change-look" type="radio" name="brother-look" value="antoine"/>
-  								<div class="preview"><img src="src/img/antoine.png" alt="antoine"/></div>
-  							</label>
-  							<label>
-  								<input class="change-look" type="radio" name="brother-look" value="julien"/>
-  								<div class="preview"><img src="src/img/julien.png" alt="julien"/></div>
-  							</label>
-  							<label>
-  								<input class="change-look" type="radio" name="brother-look" value="florent"/>
-  								<div class="preview"><img src="src/img/florent.png" alt="florent"/></div>
-  							</label>
-  						</div>
-  					</div>
-	  				<div class="field">
-		  				<label class="label">Growth</label>
-		  				<input id="brothers-growth" class="trackbar lock input" type="range" min="1" max="100" value="10" data-default="10"/>
-		  			</div>
-	  				<div class="field">
-		  				<label class="label">Speed</label>
-		  				<input id="brothers-speed" class="trackbar input" type="range" min="0" max="100" value="3" data-default="3"/>
-		  			</div>
-	  				<div class="field">
-		  				<label class="label">Collisions</label>
-		  				<div class="checkbox input">
-		  					<label class="cb-container">
-		  					  	<input id="cb-collisions" class="cb-checkbox" type="checkbox" data-default="false"/>
-		  					  	<span class="checkmark"></span>
-		  					</label>
-		  				</div>
-		  			</div>
-	  			</div>
-	  		</fieldset>
-	  		<fieldset>
-	  			<div class="fieldset-header title">Lööps</div>
-	  			<hr/>
-	  			<div class="fieldset-content">
-		  			<div class="field">
-  				  		<div class="radio-group">
-  				  			<label>
-  				  				<input class="change-look" type="radio" name="loops-look" value="loops" checked="checked"/>
-  				  				<div class="preview"><img src="src/img/loops.png" alt="loops"/></div>
-  				  			</label>
-  				  			<label>
-  				  				<input class="change-look" type="radio" name="loops-look" value="soup"/>
-  				  				<div class="preview"><img src="src/img/soup.png" alt="soup"/></div>
-  				  			</label>
-  				  			<label>
-  				  				<input class="change-look" type="radio" name="loops-look" value="rope"/>
-  				  				<div class="preview"><img src="src/img/rope.png" alt="rope"/></div>
-  				  			</label>
-  				  			<label>
-  				  				<input class="change-look" type="radio" name="loops-look" value="emc2"/>
-  				  				<div class="preview"><img src="src/img/emc2.png" alt="emc2"/></div>
-  				  			</label>
-  				  		</div>
-		  			</div>
-	  				<div class="field">
-		  				<label class="label">Size</label>
-		  				<input id="loops-size" class="trackbar input" type="range" min="1" max="100" value="20" data-default="20"/>
-		  			</div>
-		  		</div>
-	  		</fieldset>
-	  		<fieldset>
-	  			<div class="fieldset-header title">RGB</div>
-	  			<hr/>
-	  			<div class="fieldset-content">
-	  				<div class="field">
-		  				<label class="label">Activate</label>
-		  				<div class="checkbox input">
-		  					<label class="cb-container">
-		  					  	<input id="cb-rgb" class="cb-checkbox" type="checkbox" data-default="false"/>
-		  					  	<span class="checkmark"></span>
-		  					</label>
-		  				</div>
-		  			</div>
-	  				<div class="field">
-		  				<label class="label">Speed</label>
-		  				<input id="color-speed" class="trackbar input" type="range" min="1" max="25" value="1" data-default="1"/>
-		  			</div>
-		  		</div>
-	  		</fieldset>
-	  		<div class="button-group">
-		  		<button id="button-reset-settings" class="button">Reset settings</button>
-		  		<button id="button-open-changelog" class="button button-small">?</button>
-		  	</div>
-	  	</aside>
-  		<img id="brother" class="template" src="src/img/brother.png" alt="brother"/>
-  		<img id="antoine" class="template" src="src/img/antoine.png" alt="antoine"/>
-  		<img id="julien" class="template" src="src/img/julien.png" alt="julien"/>
-  		<img id="florent" class="template" src="src/img/florent.png" alt="florent"/>
-  		<img id="loops" class="template" src="src/img/loops.png" alt="loops"/>
-  		<img id="soup" class="template" src="src/img/soup.png" alt="soup"/>
-  		<img id="rope" class="template" src="src/img/rope.png" alt="rope"/>
-  		<img id="emc2" class="template" src="src/img/emc2.png" alt="emc2"/>
-		<div class="main-wrapper">
+        <div class="main-wrapper">
+    	  	<aside class="side-bar-wrapper">
+    	  		<fieldset>
+    	  			<div class="fieldset-header title">
+                        <h3 id="hunters-number-wrapper">Hunters</h3>
+                        <div class="progress-bar">
+                            <div id="hunters-progress" class="progress"></div>
+                        </div>
+                    </div>
+    	  			<div class="fieldset-content">
+    		  			<div class="field">
+      						<div class="radio-group">
+      							<label>
+      								<input class="change-species" type="radio" name="hunters-species" value="brother" checked="checked"/>
+      								<div class="preview"><img src="src/img/brother.png" alt="brother"/></div>
+      							</label>
+      							<label>
+      								<input class="change-species" type="radio" name="hunters-species" value="antoine"/>
+      								<div class="preview"><img src="src/img/antoine.png" alt="antoine"/></div>
+      							</label>
+      							<label>
+      								<input class="change-species" type="radio" name="hunters-species" value="julien"/>
+      								<div class="preview"><img src="src/img/julien.png" alt="julien"/></div>
+      							</label>
+      							<label>
+      								<input class="change-species" type="radio" name="hunters-species" value="florent"/>
+      								<div class="preview"><img src="src/img/florent.png" alt="florent"/></div>
+      							</label>
+      						</div>
+      					</div>
+    	  				<div class="field">
+    		  				<label class="label">Growth</label>
+    		  				<input id="hunters-growth" class="trackbar lock input" type="range" min="1" max="100" value="10" data-default="10"/>
+    		  			</div>
+    	  				<div class="field">
+    		  				<label class="label">Speed</label>
+    		  				<input id="hunters-speed" class="trackbar input" type="range" min="0" max="100" value="3" data-default="3"/>
+    		  			</div>
+    	  				<div class="field">
+    		  				<label class="label">Collisions</label>
+    		  				<div class="checkbox input">
+    		  					<label class="cb-container">
+    		  					  	<input id="cb-collisions" class="cb-checkbox" type="checkbox" data-default="false"/>
+    		  					  	<span class="checkmark"></span>
+    		  					</label>
+    		  				</div>
+    		  			</div>
+                        <div class="field">
+                            <label class="label">
+                                <label class="label">Amount : </label>
+                                <div id="hunters-number" class="text-info">0</div>
+                            </label>
+                        </div>
+    	  			</div>
+    	  		</fieldset>
+    	  		<fieldset>
+    	  			<div class="fieldset-header title">
+                        <h3 id="preys-number-wrapper">Preys</h3>
+                        <div class="progress-bar">
+                            <div id="preys-progress" class="progress"></div>
+                        </div>          
+                    </div>
+    	  			<div class="fieldset-content">
+    		  			<div class="field">
+      				  		<div class="radio-group">
+      				  			<label>
+      				  				<input class="change-species" type="radio" name="preys-species" value="loops" checked="checked"/>
+      				  				<div class="preview"><img src="src/img/loops.png" alt="loops"/></div>
+      				  			</label>
+      				  			<label>
+      				  				<input class="change-species" type="radio" name="preys-species" value="soup"/>
+      				  				<div class="preview"><img src="src/img/soup.png" alt="soup"/></div>
+      				  			</label>
+      				  			<label>
+      				  				<input class="change-species" type="radio" name="preys-species" value="rope"/>
+      				  				<div class="preview"><img src="src/img/rope.png" alt="rope"/></div>
+      				  			</label>
+      				  			<label>
+      				  				<input class="change-species" type="radio" name="preys-species" value="emc2"/>
+      				  				<div class="preview"><img src="src/img/emc2.png" alt="emc2"/></div>
+      				  			</label>
+      				  		</div>
+    		  			</div>
+    	  				<div class="field">
+    		  				<label class="label">Size</label>
+    		  				<input id="preys-size" class="trackbar input" type="range" min="1" max="100" value="20" data-default="20"/>
+    		  			</div>
+                        <div class="field">
+                            <label class="label">
+                                <label class="label">Amount : </label>
+                                <div id="preys-number" class="text-info">0</div>
+                            </label>
+                        </div>
+    		  		</div>
+    	  		</fieldset>
+                <fieldset>
+                    <div class="fieldset-header title">More</div>
+                    <div class="fieldset-content">
+                        <div class="field">
+                            <label class="label">RGB</label>
+                            <div class="checkbox input">
+                                <label class="cb-container">
+                                    <input id="cb-rgb" class="cb-checkbox" type="checkbox" data-default="false"/>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Speed</label>
+                            <input id="color-speed" class="trackbar input" type="range" min="1" max="25" value="1" data-default="1"/>
+                        </div>
+                        <div class="field">
+                            <label class="label">FPS</label>
+                            <div id="fps" class="text-info">0</div>
+                        </div>
+                    </div>
+                </fieldset>
+    	  		<div class="button-group">
+    		  		<button id="button-reset-settings" class="button">Reset settings</button>
+    		  		<button id="button-open-changelog" class="button button-small">?</button>
+    		  	</div>
+    	  	</aside>
 			<canvas id="game-area"></canvas>
 		</div>
-	  	<div id="changelog" class="changelog-wrapper">
-	  		<div class="changelog-header">
-	  			<div class="changelog-title title">Loops - changelog</div>
-	  			<button id="button-close-changelog" class="button changelog-close">&times;</button>
-	  		</div>
-	  		<div class="changelog-content">
-	  			<div class="version-title">v0.6 - Targets</div>
-  				<hr/>
-  				<ul>
-  					<li><b>Appearances</b> of brothers and loops can now be tweaked <b>separately</b></li>
-  					<li>Each <b>brother</b> will hunt for one specific type of <b>loops</b></li>
-  				</ul>
-	  			<div class="version-title">v0.5 - Appearances</div>
-  				<hr/>
-  				<ul>
-  					<li>You can now change the <b>appearance</b> of both brothers and loops bowls</li>
-  					<li>Changing the look of the brothers will also change their <b>text lines</b></li>
-  					<li>Added <b>maximum brothers capacity</b>. You can't exceed <b>1000</b> brothers at the same time</li>
-  				</ul>
-	  			<div class="version-title">v0.4 - Interface</div>
-  				<hr/>
-  				<ul>
-  					<li>Improved <b>colors</b>. Yeah, that's a thing</li>
-  					<li>Now there's a <b>progress bar</b> showing how much bröthers there are</li>
-  					<li>When stopped, the game now <b>freezes</b>. You can click on <b>reset</b> to reset all bröthers and lööps</li>
-  					<li>Pushed <b>growth</b> limit to <b>100</b></li>
-  				</ul>
-	  			<div class="version-title">v0.3 - Nutrition</div>
-  				<hr/>
-  				<ul>
-  					<li>Added a <b>calorific value</b> to the lööps, see what happens when they eat too much...</li>
-  					<li>Added a <b>growth</b> rate determining how much the hive grows</li>
-  					<li>Lööps size only affects newly created lööps now. It makes more sense, right ?</li>
-  					<li>Fixed <b>hovering</b> problems</li>
-  				</ul>
-  				<div class="version-title">v0.2 - Feed the bröthers</div>
-  				<hr/>
-  				<ul>
-  					<li>Added a <b>tracking system</b> allowing the bröthers to retrieve the lööps</li>
-  					<li>Cursor is now adapting to what is been <b>hovered</b></li>
-  					<li>Added more <b>sentences</b> for the bröthers</li>
-  					<li>New <b>shortcut</b> : press <b>R</b> to reset the settings</li>
-  				</ul>
-  				<div class="version-title">v0.1 - Added changelog</div>
-  				<hr/>
-  				<ul>
-  					<li>Added <b>changelog</b> to keep track of what's been done</li>
-  					<li>Added <b>shortcuts</b> : <b>F1</b> to open the changelog and <b>F1</b> or <b>Esc</b> to close it</li>
-  					<li>You can add <b>lööps</b> by clicking in the game area</li>
-  				</ul>
-	  		</div>
-	  	</div>
-		<footer class="footer-wrapper">
-	  		<div id="brothers-number-wrapper">
-	  			Bröthers : 
-	  			<span id="brothers-number"></span>
-	  		</div>
-	  		<div class="progress-bar">
-	  			<div id="brothers-progress" class="progress"></div>
-	  		</div>
-		</footer>
 	</div>
+    <div id="changelog" class="changelog-wrapper">
+        <div class="changelog-header">
+            <h3 class="changelog-title title">Loops - changelog</h3>
+            <button id="button-close-changelog" class="button changelog-close">&times;</button>
+        </div>
+        <div id="changelog-items" class="changelog-content"></div>
+    </div>
+    <img id="brother" class="template" src="src/img/brother.png" alt="brother"/>
+    <img id="antoine" class="template" src="src/img/antoine.png" alt="antoine"/>
+    <img id="julien" class="template" src="src/img/julien.png" alt="julien"/>
+    <img id="florent" class="template" src="src/img/florent.png" alt="florent"/>
+    <img id="loops" class="template" src="src/img/loops.png" alt="loops"/>
+    <img id="soup" class="template" src="src/img/soup.png" alt="soup"/>
+    <img id="rope" class="template" src="src/img/rope.png" alt="rope"/>
+    <img id="emc2" class="template" src="src/img/emc2.png" alt="emc2"/>
 </body>
 </html>

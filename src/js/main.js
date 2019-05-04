@@ -1,7 +1,7 @@
-import { BROTHER, DOM, LOOP, PARAMS, ENTITIES } from './config.js';
-import Entity from './Entity.js';
-import Brother from './Brother.js';
-import Loop from './Loop.js';
+import { HUNTER, PREY, PARAMS } from '/src/js/config.js';
+import { Hunter, MAP as HUNTERS } from '/src/js/classes/Hunter.js';
+import { Prey, MAP as PREYS } from '/src/js/classes/Prey.js';
+import Changelog from '/changelog.js';
 
 let frames = 0;
 setInterval(function () {
@@ -9,13 +9,23 @@ setInterval(function () {
 	frames = 0;
 }, 1000);
 
-whenReady(function () {
+const rgbDOM = [];
 
-	[].slice.call(document.querySelectorAll('*'))
-		.filter(el => el.id)
-		.forEach(el => {
+window.entities = () => [...HUNTERS.values()].concat([...PREYS.values()]);
+window.
+window.DOM = new Map();
+window.PARAMS = PARAMS;
+
+onReady(function () {
+
+	$('*').forEach(el => {
+		if (el.id) {
 			DOM.set(el.id, el);
-		});
+		}
+		if (! el.children.length && el.innerHTML !== '') {
+			rgbDOM.push(el);
+		}
+	});
 
 	PARAMS.canvas = DOM.get('game-area');
 	PARAMS.c = PARAMS.canvas.getContext('2d');
@@ -24,9 +34,9 @@ whenReady(function () {
 	PARAMS.canvas.height = PARAMS.canvas.offsetHeight;
 
 	PARAMS.mouse = {
-		x : PARAMS.canvas.width / 2,
-		y : PARAMS.canvas.height / 2,
-	}
+		x: PARAMS.canvas.width / 2,
+		y: PARAMS.canvas.height / 2,
+	};
 
 	document.on('mousemove', function (ev) {
 		PARAMS.mouse.x = ev.clientX - PARAMS.canvas.offsetLeft;
@@ -43,24 +53,33 @@ whenReady(function () {
 	DOM.get('button-start-stop').on('click', () => { PARAMS.running ? stop() : start() });
 	DOM.get('button-reset').on('click', reset);
 	DOM.get('button-reset-settings').on('click', resetSettings);
-	DOM.get('button-open-changelog').on('click', openChangelog);
-	DOM.get('button-close-changelog').on('click', closeChangelog);
-	DOM.get('brothers-growth').on('input', updateBrotherGrowth);
-	DOM.get('brothers-speed').on('input', updateBrotherSpeed);
-	DOM.get('loops-size').on('input', updateLoopSize);
+	DOM.get('button-open-changelog').on('click', toggleChangelog.bind(null, true));
+	DOM.get('button-close-changelog').on('click', toggleChangelog.bind(null, false));
+	DOM.get('hunters-growth').on('input', updateHunterGrowth);
+	DOM.get('hunters-speed').on('input', updateHunterSpeed);
+	DOM.get('preys-size').on('input', updatePreySize);
 	DOM.get('color-speed').on('input', updateColorSpeed);
 	DOM.get('cb-collisions').on('input', updateCollisions);
 	DOM.get('cb-rgb').on('input', updateRGB);
-	$('.change-look').on('change', updateLook);
+	$('.change-species').forEach(speciesModifier => {
+		speciesModifier.on('change', updateSpecies);
+	});
 
 	DOM.get('game-area').on('mousedown', mouseDown);
 	DOM.get('game-area').on('mouseup', mouseUp);
 	DOM.get('game-area').on('click', () => {
-		if (ENTITIES.hovered) {
+		if (PARAMS.hovered) {
 			return;
 		}
-		createLoop(PARAMS.mouse.x, PARAMS.mouse.y);
+		let newPrey = new Prey(PREY.species, {
+			x: PARAMS.mouse.x,
+			y: PARAMS.mouse.y,
+			size: PREY.size,
+			nutrition: PREY.nutrition,
+		});
 	});
+
+	generateChangelog();
 
 	init();
 	animate();
@@ -73,7 +92,7 @@ document.on('keydown', function (ev) {
 	switch (ev.keyCode) {
 		case 27 :	// Esc
 			if (PARAMS.changelogVisible) {
-				closeChangelog();
+				toggleChangelog(false);
 			}
 			break;
 		case 82 : 	// R
@@ -81,48 +100,74 @@ document.on('keydown', function (ev) {
 			break;
 		case 112 :	// F1
 			ev.preventDefault();
-			PARAMS.changelogVisible ? closeChangelog() : openChangelog();
+			toggleChangelog(! PARAMS.changelogVisible);
 			break;
 	}
 });
 
 function init() {
-	ENTITIES.brothers = [];
-	ENTITIES.loops = [];
-	ENTITIES.hovered = null;
-
+	resetEntities();
 	updateSettingsValues();
-	createBrother();
+
+	let newHunter = new Hunter(HUNTER.species, {
+		x: PARAMS.canvas.width / 2,
+		y: PARAMS.canvas.height / 2,
+		size: HUNTER.sizeMin,
+		speed: HUNTER.speed,
+	});
 }
 
 function animate() {
 	frames ++;
 	PARAMS.c.clearRect(0, 0, PARAMS.canvas.width, PARAMS.canvas.height);
+	PARAMS.c.font = PARAMS.font;
 
-	ENTITIES.brothers.forEach(brother => {
-		brother.update();
-	});
-	ENTITIES.loops.forEach(loop => {
-		loop.update();
-	});
+	entities()
+		.sort((a, b) => a.zid > b.zid)
+		.forEach(entity => {
+			entity.update();
+		});
 
-	if (ENTITIES.hovered) {
-		DOM.get('game-area').classList.remove('hide-cursor');
+	// Draw loops cursor if no entity is hovered
+	if (PARAMS.hovered) {
+		if (DOM.get('game-area').classList.contains('hide-cursor')) {
+			DOM.get('game-area').classList.remove('hide-cursor');
+		}
 	} else {
 		PARAMS.c.drawImage(
-			LOOP.img,
-			PARAMS.mouse.x - (40 * LOOP.img.clientWidth / LOOP.img.clientHeight) / 2,
-			PARAMS.mouse.y - 20, 40 * LOOP.img.clientWidth / LOOP.img.clientHeight,
+			PREY.img,
+			PARAMS.mouse.x - (40 * PREY.img.clientWidth / PREY.img.clientHeight) / 2,
+			PARAMS.mouse.y - 20,
+			40 * PREY.img.clientWidth / PREY.img.clientHeight,
 			40,
 		);
-		DOM.get('game-area').classList.add('hide-cursor');
+		if (! DOM.get('game-area').classList.contains('hide-cursor')) {
+			DOM.get('game-area').classList.add('hide-cursor');
+		}
 	}
-
+	// Update colors if colorChanging is activated
 	if (PARAMS.colorChanging) {
-		changeColor();
-	}
+		PARAMS.color[PARAMS.colorPtr % 3] = Math.max(Math.min(PARAMS.color[PARAMS.colorPtr % 3] + PARAMS.colorSpeed * PARAMS.colorMult, 255), 0);
+		if ((PARAMS.colorMult > 0 && PARAMS.color[PARAMS.colorPtr % 3] == 255) ||
+			(PARAMS.colorMult < 0 && PARAMS.color[PARAMS.colorPtr % 3] == 0)) {
+			PARAMS.colorPtr ++;
+			PARAMS.colorMult *= -1;
+		}
 
-	updateBrotherStats();
+		let hexColor = '#' + PARAMS.color.map(color => color.toString(16).padStart(2, '0')).join('');
+		rgbDOM.forEach(el => {
+			el.style.color = hexColor;
+		});
+	}
+	// Update hunters and preys amount and progress
+	if (HUNTERS.size != DOM.get('hunters-number').innerHTML) {
+		DOM.get('hunters-number').innerHTML = HUNTERS.size;
+		DOM.get('hunters-progress').style.width = Math.min(HUNTERS.size / HUNTER.maxAmount * 100, 100) + '%';
+	}
+	if (PREYS.size != DOM.get('preys-number').innerHTML) {
+		DOM.get('preys-number').innerHTML = PREYS.size;
+		DOM.get('preys-progress').style.width = Math.min(PREYS.size / PREY.maxAmount * 100, 100) + '%';
+	}
 	requestAnimationFrame(animate);
 }
 
@@ -140,7 +185,7 @@ function stop() {
 	const btn = DOM.get('button-start-stop');
 
 	btn.classList.remove('stop');
-	btn.classList.add('start')
+	btn.classList.add('start');
 	btn.innerHTML = "START";
 }
 
@@ -153,82 +198,53 @@ function reset() {
 
 function resetSettings() {
 	['.cb-checkbox', '.trackbar', '.select'].forEach(selector => {
-		let defaultVal = $(selector).dataset['default'];
+		$(selector).forEach(el => {
+			let defaultVal = el.dataset['default'];
 
-		if (typeof defaultVal === 'boolean') {
-			$(selector).checked = defaultVal;
-		} else {
-			$(selector).value = defaultVal;
-		}
+			if (typeof defaultVal === 'boolean') {
+				el.checked = defaultVal;
+			} else {
+				el.value = defaultVal;
+			}
+		});
 	});
 
 	updateSettingsValues();
 }
 
 function updateSettingsValues() {
-	updateBrotherGrowth();
-	updateBrotherSpeed();
-	updateLoopSize();
-	updateLook();
+	updateHunterGrowth();
+	updateHunterSpeed();
+	updatePreySize();
+	updateSpecies();
 	updateColorSpeed();
 	updateCollisions();
 	updateRGB();
-	console.log({ PARAMS, LOOP, BROTHER })
-}
-
-function createBrother(x, y) {
-	let options = {
-		x: x || PARAMS.canvas.width / 2,
-		y: y || PARAMS.canvas.height / 2,
-		size: BROTHER.sizeMin,
-		speed: BROTHER.speed,
-		speech: BROTHER.speech,
-	}
-	let newBrother = new Brother(BROTHER.type, options);
-
-	ENTITIES.brothers.push(newBrother);
-}
-
-function createLoop(x, y) {
-	let options = { x, y,
-		size: LOOP.size,
-		nutrition: LOOP.nutrition,
-	};
-	let newLoop = new Loop(LOOP.type, options);
-
-	ENTITIES.loops.push(newLoop);
 }
 
 function mouseDown() {
-	if (ENTITIES.hovered) {
-		ENTITIES.hovered.startDragging();
+	if (PARAMS.hovered) {
+		PARAMS.hovered.startDragging();
 	}
 }
 
 function mouseUp() {
-	if (ENTITIES.hovered && ENTITIES.hovered.dragging) {
-		ENTITIES.hovered.stopDragging();
+	if (PARAMS.hovered && PARAMS.hovered.dragging) {
+		PARAMS.hovered.stopDragging();
 	}
 }
 
-function updateBrotherGrowth() {
-	BROTHER.growth = parseInt(DOM.get('brothers-growth').value);
+function updateHunterGrowth() {
+	HUNTER.growth = parseInt(DOM.get('hunters-growth').value);
 }
 
-function updateBrotherSpeed() {
-	BROTHER.speed = parseInt(DOM.get('brothers-speed').value);
-
-	if (! ENTITIES.brothers.length) {
-		return;
-	}
-	ENTITIES.brothers.forEach(brother => {
-		brother.speed = BROTHER.speed;
-	});
+function updateHunterSpeed() {
+	HUNTER.speed = parseInt(DOM.get('hunters-speed').value);
 }
 
-function updateLoopSize() {
-	LOOP.size = parseInt(DOM.get('loops-size').value) / 100;
-	LOOP.nutrition = LOOP.size;
+function updatePreySize() {
+	PREY.size = parseInt(DOM.get('preys-size').value) / 100;
+	PREY.nutrition = PREY.size;
 }
 
 function updateCollisions() {
@@ -239,81 +255,53 @@ function updateColorSpeed() {
 	PARAMS.colorSpeed = parseInt(DOM.get('color-speed').value);
 }
 
-function updateBrotherStats() {
-	DOM.get('brothers-number').innerHTML = ENTITIES.brothers.length == BROTHER.maxAmount ? 'MAX' : ENTITIES.brothers.length;
-	DOM.get('brothers-progress').style.width = Math.min(ENTITIES.brothers.length / BROTHER.maxAmount * 100, 100) + '%';
-}
-
 function updateRGB() {
-	let colorChanging = DOM.get('cb-rgb').checked;
+	PARAMS.colorChanging = DOM.get('cb-rgb').checked;
 
-	PARAMS.colorChanging = colorChanging;
-
-	if (! colorChanging) {
-		$('*').style.color = null;
+	if (! DOM.get('cb-rgb').checked) {
+		rgbDOM.forEach(el => {
+			el.style.color = null;
+		});
 	}
 }
 
-function changeColor() {
-	let colorArray = [
-		PARAMS.color.R,
-		PARAMS.color.G,
-		PARAMS.color.B,
-	];
-	let nextColor = (PARAMS.currentColor + 1) % 3;
-
-	if (PARAMS.filling) {
-		colorArray[nextColor] < 255 ? colorArray[nextColor] += PARAMS.colorSpeed : PARAMS.filling = false;
-	} else {
-		if (0 < colorArray[PARAMS.currentColor]) {
-			colorArray[PARAMS.currentColor] -= PARAMS.colorSpeed;
-		} else {
-			PARAMS.filling = false;
-			PARAMS.currentColor = nextColor;
-		}
-	}
-	for (let i = 0; i < colorArray.length; i ++) {
-		colorArray[i] = Math.max(Math.min(colorArray[i], 255), 0);
-	}
-	PARAMS.color.R = colorArray[0];
-	PARAMS.color.G = colorArray[1];
-	PARAMS.color.B = colorArray[2];
-
-	updateColor();
+function resetEntities() {
+	PARAMS.hovered = null;
+	HUNTERS.clear();
+	PREYS.clear();
 }
 
-function updateColor() {
-	$('*').style.color = '#' + toHex(PARAMS.color.R) + toHex(PARAMS.color.G) + toHex(PARAMS.color.B);
-}
+function generateChangelog() {
+	let versionItems = [];
 
-function openChangelog() {
-	PARAMS.changelogVisible = true;
+	Object.keys(Changelog).forEach(version => {
+		let versionTag = document.createElement('div');
+		versionTag.classList.add('version-title');
+		versionTag.innerHTML = version;
 
-	$('.wrapper').eachChild(child => {
-		child.style.opacity = 0.2;
+		let versionItemsList = document.createElement('ul');
+		Changelog[version].forEach(item => {
+			let li = document.createElement('li');
+			li.innerHTML = item;
+			versionItemsList.append(li);
+		});
+		
+		DOM.get('changelog-items').append(versionTag);
+		DOM.get('changelog-items').append(document.createElement('hr'));
+		DOM.get('changelog-items').append(versionItemsList);
 	});
-	DOM.get('changelog').style.opacity = 1;
-	DOM.get('changelog').style.display = 'block';
 }
 
-function closeChangelog() {
-	PARAMS.changelogVisible = false;
+function toggleChangelog(state) {
+	PARAMS.changelogVisible = state;
 
-	$('.wrapper').eachChild(child => {
-		child.style.opacity = 1;
-	});
-	DOM.get('changelog').style.opacity = 0;
-	DOM.get('changelog').style.display = 'none';
+	$('.wrapper').style.opacity = state ? 0.2 : 1;
+	DOM.get('changelog').style.display = state ? 'block' : 'none';
+
 }
 
-function updateLook() {
-	BROTHER.type = $('input[name="brother-look"]:checked').value;
-	BROTHER.speech = BROTHER.type;
-	LOOP.type = $('input[name="loops-look"]:checked').value;
-	LOOP.img = DOM.get(LOOP.type);
-
-	ENTITIES.brothers.forEach(brother => {
-		brother.type = BROTHER.type;
-		brother.speech = BROTHER.speech;
-	});
+function updateSpecies() {
+	HUNTER.species = $('input[name="hunters-species"]:checked').value;
+	PREY.species = $('input[name="preys-species"]:checked').value;
+	PREY.img = DOM.get(PREY.species);
 }
