@@ -3,8 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="changelog.js"></script>
     <script src="src/js/util.js"></script>
-  	<script src="src/js/main.js" type="module"></script>
+    <script src="src/js/config.js"></script>
+  	<script src="src/js/main.js"></script>
+    <script src="src/js/classes/Player.js"></script>
+    <script src="src/js/classes/Unique.js"></script>
+    <script src="src/js/classes/Entity.js"></script>
+    <script src="src/js/classes/Hunter.js"></script>
+    <script src="src/js/classes/Prey.js"></script>
   	<link rel="stylesheet" href="src/css/style.css">
   	<title>LööPS</title>
 </head>
@@ -53,15 +60,24 @@
     		  				<label class="label">Speed</label>
     		  				<input id="hunters-speed" class="trackbar input" type="range" min="0" max="100" value="3" data-default="3"/>
     		  			</div>
-    	  				<div class="field">
-    		  				<label class="label">Collisions</label>
-    		  				<div class="checkbox input">
-    		  					<label class="cb-container">
-    		  					  	<input id="cb-collisions" class="cb-checkbox" type="checkbox" data-default="false"/>
-    		  					  	<span class="checkmark"></span>
-    		  					</label>
-    		  				</div>
-    		  			</div>
+                        <div class="field">
+                            <label class="label">Collisions</label>
+                            <div class="checkbox input">
+                                <label class="cb-container">
+                                    <input id="cb-collisions" class="cb-checkbox" type="checkbox" data-default="false"/>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">Mute</label>
+                            <div class="checkbox input">
+                                <label class="cb-container">
+                                    <input id="cb-mute" class="cb-checkbox" type="checkbox" data-default="false"/>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                        </div>
                         <div class="field">
                             <label class="label">
                                 <label class="label">Amount : </label>
@@ -111,7 +127,9 @@
     		  		</div>
     	  		</fieldset>
                 <fieldset>
-                    <div class="fieldset-header title">More</div>
+                    <div class="fieldset-header title">
+                        <h3 id="preys-number-wrapper">More</h3>
+                    </div>
                     <div class="fieldset-content">
                         <div class="field">
                             <label class="label">RGB</label>
@@ -155,5 +173,17 @@
     <img id="soup" class="template" src="src/img/soup.png" alt="soup"/>
     <img id="rope" class="template" src="src/img/rope.png" alt="rope"/>
     <img id="emc2" class="template" src="src/img/emc2.png" alt="emc2"/>
+    <audio id="sound-oof" src="src/sounds/oof.mp3"></audio>
+    <audio id="sound-minecraft" src="src/sounds/minecraft.mp3"></audio>
+    <audio id="sound-loops1" src="src/sounds/loops1.mp3"></audio>
+    <audio id="sound-loops2" src="src/sounds/loops2.mp3"></audio>
+    <audio id="sound-loops3" src="src/sounds/loops3.mp3"></audio>
+    <audio id="sound-chimp1" src="src/sounds/chimp1.mp3"></audio>
+    <audio id="sound-chimp2" src="src/sounds/chimp2.mp3"></audio>
+    <audio id="sound-chimp3" src="src/sounds/chimp3.mp3"></audio>
+    <audio id="sound-chimp4" src="src/sounds/chimp4.mp3"></audio>
+    <audio id="sound-julien1" src="src/sounds/julien1.mp3"></audio>
+    <audio id="sound-julien2" src="src/sounds/julien2.mp3"></audio>
+    <audio id="sound-julien3" src="src/sounds/julien3.mp3"></audio>
 </body>
 </html>

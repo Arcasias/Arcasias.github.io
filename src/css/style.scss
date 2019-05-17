@@ -105,7 +105,7 @@ h1, h2, h3, input {
 			width: 90%;
 			align-items: center;
 			box-shadow: 0 0 20px 0 gray;
-			@include gradient($pale_gold, $gold);
+			color: $gold;
 			* {
 				flex: 1;
 			}
@@ -166,6 +166,7 @@ h1, h2, h3, input {
 		height: 100%;
 		width: 100%;
 		user-select: none;
+		cursor: pointer;
 	}
 }
 
@@ -191,7 +192,7 @@ h1, h2, h3, input {
 
 		.changelog-title {
 			flex: 1;
-			@include gradient($pale_gold, $gold);
+			color: $gold;
 		}
 
 		.changelog-close {
@@ -244,6 +245,7 @@ h1, h2, h3, input {
 	padding: 0;
 	height: 20px;
 	background-color: $pale_black;
+	border-radius: 2px;
 
 	.progress {
 		width: 0;
@@ -252,6 +254,7 @@ h1, h2, h3, input {
 		margin: 0;
 		border: none;
 		background-color: $gold;
+		border-radius: 2px;
 		transition: width 0.2s;
 	}
 }
@@ -261,6 +264,7 @@ h1, h2, h3, input {
     width: 100%;
     height: 10px;
     margin: 5px 0 0 0;
+    border-radius: 2px;
     padding: 0 !important;
     background: $pale_black;
     outline: none;
@@ -270,15 +274,10 @@ h1, h2, h3, input {
 	    width: 10px;
 	    height: 20px;
 	    box-shadow: 1px 1px 8px $black;
+    	border-radius: 2px;
 	    background: $gold;
 	    cursor: pointer;
     }
-
-    &::-moz-range-thumb {
-        width: 25px;
-        height: 25px;
-        background: $gold;
-   	}
 }
 
 .checkbox {
@@ -313,6 +312,7 @@ h1, h2, h3, input {
 		    width: 22px;
 		    background-color: $pale_black;
 		    position: absolute;
+		    border-radius: 2px;
 
 		    &:after {
 			    content: "";
@@ -396,6 +396,9 @@ h1, h2, h3, input {
 }
 
 .gold { color: $gold; }
+.rgb {
+	color: '';
+}
 
 @media all and ( max-width: 800px ) {
 	.main-wrapper { flex: 0 100%; order: 1; }

@@ -1,4 +1,10 @@
-export default {
+const CHANGELOG = {
+    "v0.8 - Sounds": [
+        "Hunters now trigger a <b>SOUND</b> when talking",
+        "Apart from that, just <b>cleaned</b> the code",
+        "Yeah, that's it. You can't have <b>breaking changes</b> every patch can you ?",
+        "Please get a life",
+    ],
     "v0.7 - Performances": [
         "Basically changed the way <b>entities</b> are stored and updated",
         "Lots of code <b>refactor</b> (JS modules, no more libs because I'm a strong independant developer)",

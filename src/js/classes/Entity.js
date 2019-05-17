@@ -1,14 +1,3 @@
-import { HUNTER, PREY, PARAMS } from '/src/js/config.js';
-
-class Unique {
-
-    _id = -1;
-
-    generate() {
-        return ++ this._id;
-    }
-}
-
 const UID = new Unique();
 const UZID = new Unique();
 
@@ -18,9 +7,6 @@ class Entity {
 	 * @constructor
 	 */
 	constructor(species, options) {
-		if (! species) {
-			throw new Error(`Missing argument : \"species\".`);
-		}
 		// Read only
 		this._id = UID.generate();
 		this._zid = UZID.generate();
@@ -30,7 +16,7 @@ class Entity {
 		this._species = species;
 		this._x = options.x || 0;
 		this._y = options.y || 0;
-		this._img = options.img || $('#' + species);
+		this._img = options.img || null;
 		this._w = options.w || this._img.clientWidth;
 		this._h = options.h || this._img.clientHeight;
 		this._size = options.size || 0.1;
@@ -59,9 +45,6 @@ class Entity {
 		return this._x - this.w / 2;
 	}
 	set x(x) {
-		if (isNaN(x)) {
-			throw new TypeError("\"x\" must of type \"number\"");
-		}
 		this._x = x;
 	}
 
@@ -72,9 +55,6 @@ class Entity {
 		return this._y - this.h / 2;
 	}
 	set y(y) {
-		if (isNaN(y)) {
-			throw new TypeError("\"y\" must of type \"number\"");
-		}
 		this._y = y;
 	}
 
@@ -85,9 +65,6 @@ class Entity {
 		return this._w * this._size;
 	}
 	set w(w) {
-		if (isNaN(w)) {
-			throw new TypeError("\"w\" must of type \"number\"");
-		}
 		this._w = w;
 	}
 
@@ -98,9 +75,6 @@ class Entity {
 		return this._h * this._size;
 	}
 	set h(h) {
-		if (isNaN(h)) {
-			throw new TypeError("\"h\" must of type \"number\"");
-		}
 		this._h = h;
 	}
 
@@ -111,9 +85,6 @@ class Entity {
 		return this._species;
 	}
 	set species(species) {
-		if (typeof species !== 'string') {
-			throw new TypeError("\"species\" must of type \"string\"");
-		}
 		this._species = species;
 		this._img = $('#' + species);
 		this._w = this._img.clientWidth;
@@ -127,9 +98,6 @@ class Entity {
 		return this._mass;
 	}
 	set mass(mass) {
-		if (isNaN(mass)) {
-			throw new TypeError("\"mass\" must be of type \"number\"");
-		}
 		this._mass = mass;
 	}
 
@@ -140,9 +108,6 @@ class Entity {
 		return this._speed;
 	}
 	set speed(speed) {
-		if (isNaN(speed)) {
-			throw new TypeError("\"speed\" must be of type \"number\"");
-		}
 		this._speed = speed;
 	}
 
@@ -168,9 +133,6 @@ class Entity {
 		return this._dragging;
 	}
 	set dragging(dragging) {
-		if (typeof dragging !== 'boolean') {
-			throw new TypeError("\"dragging\" must be of type \"boolean\"");
-		}
 		this._dragging = dragging;
 	}
 
@@ -181,13 +143,6 @@ class Entity {
 		return this._type;
 	}
 	set type(type) {
-		let availableTypes = [
-			HUNTER.type,
-			PREY.type,
-		];
-		if (! availableTypes.includes(type)) {
-			throw new TypeError(`"type" must be an available type : [${ availableTypes.join(', ') }]`);
-		}
 		this._type = type;
 	}
 
@@ -201,30 +156,8 @@ class Entity {
 			PARAMS.mouse.y < this.y + this.h;
 	}
 
-	draw() {
-		PARAMS.c.drawImage(this._img, this.x, this.y, this.w, this.h);
-
-		return this;
-	}
-
-	remove() {
-		if (this === PARAMS.hovered) {
-			PARAMS.hovered = null;
-		}
-		this._deleted = true;
-
-		return this;
-	}
-
-	resetVelocity(random=true) {
-		this._velocity = {
-			x: random ? Math.random() * 2 - 1 : 0,
-			y: random ? Math.random() * 2 - 1 : 0,
-		};
-	}
-
 	startDragging() {
-		this.toFront();
+		this._toFront();
 
 		this._dragging = true;
 
@@ -240,19 +173,27 @@ class Entity {
 		return this;
 	}
 
-	toFront() {
-		this._zid = UZID.generate();
+	remove() {
+		if (this === PARAMS.hovered) {
+			PARAMS.hovered = null;
+		}
+		this._deleted = true;
 
 		return this;
 	}
 	
 	update() {
-		this.draw();
+		this._draw();
 
 		if (PARAMS.collisions) {
-			entities().forEach(entity => {
-				if (this !== entity && detectCollision(this, entity)) {
-					resolveCollision(this, entity);
+			[...HUNTERS.values()].forEach(hunter => {
+				if (this !== hunter && detectCollision(this, hunter)) {
+					resolveCollision(this, hunter);
+				}
+			});
+			[...PREYS.values()].forEach(prey => {
+				if (this !== prey && detectCollision(this, prey)) {
+					resolveCollision(this, prey);
 				}
 			});
 		}
@@ -263,7 +204,7 @@ class Entity {
 			this._velocity.y *= -1;
 		}
 		if (this.hovered) {
-			if (PARAMS.hovered && this.zid >= PARAMS.hovered.zid) {
+			if (! PARAMS.hovered || this.zid >= PARAMS.hovered.zid) {
 				PARAMS.hovered = this;
 			}
 		} else if (! this._dragging && this === PARAMS.hovered) {
@@ -276,6 +217,25 @@ class Entity {
 
 		return this;
 	}
-}
 
-export default Entity;
+	_draw() {
+		PARAMS.c.drawImage(this._img, this.x, this.y, this.w, this.h);
+
+		return this;
+	}
+
+	_resetVelocity(random=true) {
+		this._velocity = {
+			x: random ? Math.random() * 2 - 1 : 0,
+			y: random ? Math.random() * 2 - 1 : 0,
+		};
+
+		return this;
+	}
+
+	_toFront() {
+		this._zid = UZID.generate();
+
+		return this;
+	}
+}

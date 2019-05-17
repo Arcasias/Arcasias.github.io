@@ -1,8 +1,6 @@
-import { PREY } from '/src/js/config.js';
-import Entity from '/src/js/classes/Entity.js';
+const PREYS = new Map();
 
-export const MAP = new Map();
-export class Prey extends Entity {
+class Prey extends Entity {
 
     _type = PREY.type;
     _moving = false;
@@ -14,7 +12,7 @@ export class Prey extends Entity {
 		super(species, options);
 
 		this._nutrition = options.nutrition || 0;
-        MAP.set(this._id, this);
+        PREYS.set(this._id, this);
 	}
 
     /**
@@ -36,7 +34,7 @@ export class Prey extends Entity {
     remove() {
         super.remove();
 
-        MAP.delete(this._id);
+        PREYS.delete(this._id);
 
         return this;
     }

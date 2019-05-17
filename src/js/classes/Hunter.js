@@ -1,11 +1,9 @@
-import { HUNTER, PREY, PARAMS, SPEECH, TARGETS } from '/src/js/config.js';
-import { MAP as PREYS } from '/src/js/classes/Prey.js';
-import Entity from './Entity.js';
+const HUNTERS = new Map();
 
-export const MAP = new Map();
-export class Hunter extends Entity {
+class Hunter extends Entity {
 
 	_type = HUNTER.type;
+	static player = new Player(50, 100);
 
 	/**
 	 * @constructor
@@ -22,18 +20,18 @@ export class Hunter extends Entity {
 		this._objective = options.objective || null;
 		this._exploding = options.exploding || false;
 		this._explodingIntensity = options.explodingIntensity || 0;
-		this.resetVelocity(true);
-		MAP.set(this._id, this);
+		this._resetVelocity(true);
+		HUNTERS.set(this._id, this);
 	}
 
 	/**
 	 * @override
 	 */
-	set type(type) {
-		if (type != this._type && this._objective && TARGETS[type] != this._objective) {
-			this.resetVelocity(true)
+	set species(species) {
+		if (species != this._species && this._objective && SPECIES[species].target != this._objective.species) {
+			this._resetVelocity(true)
 		}
-		super.type = type;
+		super.species = species;
 	}
 
 	get text() {
@@ -53,86 +51,12 @@ export class Hunter extends Entity {
 	/**
 	 * @override
 	 */
-	draw() {
-		super.draw();
-
-		if (this._talking) {
-			let color = PARAMS.colorChanging ? `rgb(${PARAMS.color.join(',')})` : '#000000';
-
-		    PARAMS.c.strokeStyle = color;
-		    PARAMS.c.strokeRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
-		    PARAMS.c.fillStyle = '#ffffff';
-		    PARAMS.c.fillRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
-		    
-		    PARAMS.c.fillStyle = color;
-		    PARAMS.c.fillText(this._text.text, this.x + this.w / 2, this.y - 8);
-		}
-
-		return this;
-	}
-
-	explode() {
-		this._exploding = true;
-		this.startTalking('exploding', true);
-
-		setTimeout(() => {
-			for (let i = 0; i < (MAP.size < HUNTER.maxAmount ? HUNTER.growth : 1); i ++) {
-				let newHunter = new Hunter(this._species, {
-					x: this._x,
-					y: this._y,
-					size: this._baseSize + (Math.random() * 0.1 - 0.05),
-					speed: this._speed,
-				});
-				MAP.set(newHunter.id, newHunter);
-			}
-			this.remove();
-		}, 2000);
-
-		return this;
-	}
-
-	newObjective() {
-		if (PREYS.size === 0) {
-			this._objective = null;
-		} else {
-			let feasible = [...PREYS.values()].filter(prey => prey.species === TARGETS[this._species]);
-
-			if (feasible.length === 0) {
-				this._objective = null;
-			} else {
-				this._objective = choice(feasible);
-				if (Math.random() < 1 / (100 / 15)) {
-					this.startTalking(this._objective ? 'seek' : 'notfound', true);
-				}
-			}
-		}
-		return this;
-	}
-
-	objectiveReached() {
-		this.startTalking('found', true);
-
-		let nutrition = this._objective.nutrition;
-
-		this._objective.remove();
-
-		this.newObjective();
-
-		this._size += nutrition;
-
-		if (this._size >= 1) {
-			this.explode();
-		}
-		return this;
-	}
-
-	/**
-	 * @override
-	 */
 	remove() {
+		if (this._exploding) {
+			clearTimeout(this._exploding);
+		}
 		super.remove()
-
-		MAP.delete(this._id);
+		HUNTERS.delete(this._id);
 
 		return this;
 	}
@@ -143,25 +67,7 @@ export class Hunter extends Entity {
 	startDragging() {
 		super.startDragging();
 
-		this.startTalking('dragged', true);
-
-		return this;
-	}
-
-	startTalking(context='default', override=false) {
-		if (this._talking) {
-			if (! override) {
-				return;
-			}
-			this.stopTalking(true);
-		}
-
-		this.toFront();
-
-		this.text = choice(SPEECH[this._species][context]);
-		this._talking = setTimeout(() => {
-			this.stopTalking();
-		}, 2000);
+		this._startTalking('dragged', true);
 
 		return this;
 	}
@@ -172,19 +78,7 @@ export class Hunter extends Entity {
 	stopDragging() {
 		super.stopDragging();
 
-		this.startTalking('dropped', true);
-
-		return this;
-	}
-
-	stopTalking(clearPrevious=false) {
-		if (! this._talking) {
-			return;
-		}
-		if (clearPrevious) {
-			clearTimeout(this._talking);
-		}
-		this._talking = false;
+		this._startTalking('dropped', true);
 
 		return this;
 	}
@@ -202,16 +96,16 @@ export class Hunter extends Entity {
 		} else if (PARAMS.running && this._speed > 0) {
 			if (this._objective) {
 				if (this._objective.deleted) {
-					this.newObjective();
-					this.resetVelocity(true);
+					this._newObjective();
+					this._resetVelocity(true);
 				} else if (detectCollision(this, this._objective)) {
-					return this.objectiveReached();
+					return this._objectiveReached();
 				}
 			} else {
-				this.newObjective();
+				this._newObjective();
 			}
 			if (! this._talking && Math.random() < 1 / 1000) {
-				this.startTalking();
+				this._startTalking();
 			}
 			if (! this._dragging && this._moving) {
 				if (this._objective) {
@@ -224,8 +118,115 @@ export class Hunter extends Entity {
 				this._y += this._velocity.y * this._speed;
 			}
 		} else if (! this._talking && Math.random() < 1 / 1000) {
-			this.startTalking('pending');
+			this._startTalking('pending');
 		}
+
+		return this;
+	}
+
+	/**
+	 * @override
+	 */
+	_draw() {
+		super._draw();
+
+		if (this._talking) {
+			let color = PARAMS.colorChanging ? `rgb(${PARAMS.color.join(',')})` : '#000000';
+
+		    PARAMS.c.strokeStyle = color;
+		    PARAMS.c.strokeRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
+		    PARAMS.c.fillStyle = '#ffffff';
+		    PARAMS.c.fillRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
+		    
+		    PARAMS.c.fillStyle = color;
+		    PARAMS.c.fillText(this._text.text, this.x + this.w / 2, this.y - 8);
+		}
+
+		return this;
+	}
+
+	_explode() {
+		this._startTalking('exploding', true);
+
+		this._exploding = setTimeout(() => {
+			for (let i = 0; i < (HUNTERS.size < HUNTER.maxAmount ? HUNTER.growth : 1); i ++) {
+				let newHunter = new Hunter(this._species, {
+					x: this._x,
+					y: this._y,
+					img: this._img,
+					size: this._baseSize + (Math.random() * 0.05 - 0.025),
+					speed: this._speed,
+				});
+				HUNTERS.set(newHunter.id, newHunter);
+			}
+			this._exploding = false;
+			this.remove();
+		}, 2000);
+
+		return this;
+	}
+
+	_newObjective() {
+		if (PREYS.size === 0) {
+			this._objective = null;
+		} else {
+			let feasible = [...PREYS.values()].filter(prey => prey.species === SPECIES[this._species].target);
+
+			if (feasible.length === 0) {
+				this._objective = null;
+			} else {
+				this._objective = choice(feasible);
+				if (Math.random() < 1 / (100 / 15)) {
+					this._startTalking(this._objective ? 'seek' : 'notfound', true);
+				}
+			}
+		}
+		return this;
+	}
+
+	_objectiveReached() {
+		this._startTalking('found', true);
+
+		let nutrition = this._objective.nutrition;
+
+		this._objective.remove();
+
+		this._newObjective();
+
+		this._size += nutrition;
+
+		if (this._size >= 1) {
+			this._explode();
+		}
+		return this;
+	}
+
+	_startTalking(context='default', override=false) {
+		if (this._talking) {
+			if (! override) {
+				return;
+			}
+			this._stopTalking(true);
+		}
+		Hunter.player.play(SPECIES[this._species].sounds);
+		this._toFront();
+
+		this.text = choice(SPECIES[this._species].speech[context]);
+		this._talking = setTimeout(() => {
+			this._stopTalking();
+		}, 2000);
+
+		return this;
+	}
+
+	_stopTalking(clearPrevious=false) {
+		if (! this._talking) {
+			return;
+		}
+		if (clearPrevious) {
+			clearTimeout(this._talking);
+		}
+		this._talking = false;
 
 		return this;
 	}

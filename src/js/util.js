@@ -1,27 +1,5 @@
-EventTarget.prototype.on = function (ev, fn, opt=false) {
-    this.addEventListener(ev, fn, opt);
-};
-
-function $(selector) {
-    if (selector instanceof Element) {
-        return selector;
-    }
-    if (typeof selector !== 'string') {
-        throw new TypeError("Selector must be of type string.");
-    }
-    let res;
-    switch (selector.charAt(0)) {
-        case '#':
-            return document.getElementById(selector.slice(1));
-        case '.':
-            res = [...document.getElementsByClassName(selector.slice(1))];
-            break;
-        default:
-            res = [...document.querySelectorAll(selector)];
-            break;
-    }
-    return res.length === 1 ? res[0] : res;
-}
+'use strict';
+EventTarget.prototype.on = EventTarget.prototype.addEventListener;
 
 function choice(array) {
     return array[Math.floor(Math.random() * array.length)];
@@ -62,12 +40,14 @@ function rotate(velocity, angle) {
     };
 }
 
-function onReady(fn) {
-    if (document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading') {
-        fn();
-    } else {
-        document.on('DOMContentLoaded', fn, { once: true });
-    }
+function nextTick(fn) {
+    return new Promise(res => {
+        setTimeout(res, 0);
+    }).then(() => {
+        if (fn) {
+            fn();
+        }
+    });
 }
 
 function xFromDistance(x1, y1, x2, y2) {
@@ -76,4 +56,11 @@ function xFromDistance(x1, y1, x2, y2) {
 
 function yFromDistance(x1, y1, x2, y2) {
     return Math.sin(Math.atan((y2 - y1) / (x2 - x1)));
+}
+
+function updateEntities(entities) {
+    entities.sort((a, b) => a.zid > b.zid)
+        .forEach(entity => {
+            entity.update();
+        });
 }

@@ -1,33 +1,34 @@
-import { HUNTER, PREY, PARAMS } from '/src/js/config.js';
-import { Hunter, MAP as HUNTERS } from '/src/js/classes/Hunter.js';
-import { Prey, MAP as PREYS } from '/src/js/classes/Prey.js';
-import Changelog from '/changelog.js';
-
 let frames = 0;
 setInterval(function () {
-	DOM.get('fps').innerHTML = frames;
+	document.getElementById('fps').innerHTML = frames;
 	frames = 0;
 }, 1000);
 
-const rgbDOM = [];
+let rgbRule;
 
-window.entities = () => [...HUNTERS.values()].concat([...PREYS.values()]);
-window.
-window.DOM = new Map();
-window.PARAMS = PARAMS;
-
-onReady(function () {
-
-	$('*').forEach(el => {
-		if (el.id) {
-			DOM.set(el.id, el);
+(function (fn) {
+	if (document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading') {
+	    fn();
+	} else {
+	    document.on('DOMContentLoaded', fn, { once: true });
+	}
+})(async function () {
+	for (let styleSheet of document.styleSheets) {
+		for (let rule of styleSheet.cssRules) {
+			if (rule.selectorText === '.rgb') {
+				rgbRule = rule;
+			}
 		}
-		if (! el.children.length && el.innerHTML !== '') {
-			rgbDOM.push(el);
-		}
+	}
+	generateChangelog();
+
+	['label', 'text-info', 'button', 'changelog-wrapper'].forEach(className => {
+		[...document.getElementsByClassName(className)].forEach(el => {
+			el.classList.add('rgb');
+		});
 	});
 
-	PARAMS.canvas = DOM.get('game-area');
+	PARAMS.canvas = document.getElementById('game-area');
 	PARAMS.c = PARAMS.canvas.getContext('2d');
 
 	PARAMS.canvas.width = PARAMS.canvas.offsetWidth;
@@ -50,36 +51,38 @@ onReady(function () {
 		init();
 	});
 
-	DOM.get('button-start-stop').on('click', () => { PARAMS.running ? stop() : start() });
-	DOM.get('button-reset').on('click', reset);
-	DOM.get('button-reset-settings').on('click', resetSettings);
-	DOM.get('button-open-changelog').on('click', toggleChangelog.bind(null, true));
-	DOM.get('button-close-changelog').on('click', toggleChangelog.bind(null, false));
-	DOM.get('hunters-growth').on('input', updateHunterGrowth);
-	DOM.get('hunters-speed').on('input', updateHunterSpeed);
-	DOM.get('preys-size').on('input', updatePreySize);
-	DOM.get('color-speed').on('input', updateColorSpeed);
-	DOM.get('cb-collisions').on('input', updateCollisions);
-	DOM.get('cb-rgb').on('input', updateRGB);
-	$('.change-species').forEach(speciesModifier => {
+	document.getElementById('button-start-stop').on('click', () => { PARAMS.running ? stop() : start() });
+	document.getElementById('button-reset').on('click', reset);
+	document.getElementById('button-reset-settings').on('click', resetSettings);
+	document.getElementById('button-open-changelog').on('click', toggleChangelog.bind(null, true));
+	document.getElementById('button-close-changelog').on('click', toggleChangelog.bind(null, false));
+	document.getElementById('hunters-growth').on('input', updateHunterGrowth);
+	document.getElementById('hunters-speed').on('input', updateHunterSpeed);
+	document.getElementById('preys-size').on('input', updatePreySize);
+	document.getElementById('color-speed').on('input', updateColorSpeed);
+	document.getElementById('cb-collisions').on('input', updateCollisions);
+	document.getElementById('cb-mute').on('input', updateMute);
+	document.getElementById('cb-rgb').on('input', updateRGB);
+	[...document.getElementsByClassName('change-species')].forEach(speciesModifier => {
 		speciesModifier.on('change', updateSpecies);
 	});
 
-	DOM.get('game-area').on('mousedown', mouseDown);
-	DOM.get('game-area').on('mouseup', mouseUp);
-	DOM.get('game-area').on('click', () => {
+	document.getElementById('game-area').on('mousedown', mouseDown);
+	document.getElementById('game-area').on('mouseup', mouseUp);
+	document.getElementById('game-area').on('click', () => {
 		if (PARAMS.hovered) {
 			return;
 		}
 		let newPrey = new Prey(PREY.species, {
 			x: PARAMS.mouse.x,
 			y: PARAMS.mouse.y,
+			img: PREY.img,
 			size: PREY.size,
 			nutrition: PREY.nutrition,
 		});
 	});
 
-	generateChangelog();
+	await nextTick();
 
 	init();
 	animate();
@@ -109,9 +112,14 @@ function init() {
 	resetEntities();
 	updateSettingsValues();
 
+	let availableAudios = [...document.getElementsByTagName('audio')]
+		.filter(audio => SPECIES[HUNTER.species].sounds.includes(audio.id));
+	Hunter.player.load(availableAudios);
+
 	let newHunter = new Hunter(HUNTER.species, {
 		x: PARAMS.canvas.width / 2,
 		y: PARAMS.canvas.height / 2,
+		img: document.getElementById(HUNTER.species),
 		size: HUNTER.sizeMin,
 		speed: HUNTER.speed,
 	});
@@ -122,16 +130,14 @@ function animate() {
 	PARAMS.c.clearRect(0, 0, PARAMS.canvas.width, PARAMS.canvas.height);
 	PARAMS.c.font = PARAMS.font;
 
-	entities()
-		.sort((a, b) => a.zid > b.zid)
-		.forEach(entity => {
-			entity.update();
-		});
+	updateEntities([...HUNTERS.values()]);
+	updateEntities([...PREYS.values()]);
 
 	// Draw loops cursor if no entity is hovered
 	if (PARAMS.hovered) {
-		if (DOM.get('game-area').classList.contains('hide-cursor')) {
-			DOM.get('game-area').classList.remove('hide-cursor');
+		if (PARAMS.cursorHidden) {
+			document.getElementById('game-area').classList.remove('hide-cursor');
+			PARAMS.cursorHidden = false;
 		}
 	} else {
 		PARAMS.c.drawImage(
@@ -141,8 +147,9 @@ function animate() {
 			40 * PREY.img.clientWidth / PREY.img.clientHeight,
 			40,
 		);
-		if (! DOM.get('game-area').classList.contains('hide-cursor')) {
-			DOM.get('game-area').classList.add('hide-cursor');
+		if (! PARAMS.cursorHidden) {
+			document.getElementById('game-area').classList.add('hide-cursor');
+			PARAMS.cursorHidden = true;
 		}
 	}
 	// Update colors if colorChanging is activated
@@ -154,26 +161,23 @@ function animate() {
 			PARAMS.colorMult *= -1;
 		}
 
-		let hexColor = '#' + PARAMS.color.map(color => color.toString(16).padStart(2, '0')).join('');
-		rgbDOM.forEach(el => {
-			el.style.color = hexColor;
-		});
+		rgbRule.style.color = '#' + PARAMS.color.map(color => color.toString(16).padStart(2, '0')).join('');
 	}
 	// Update hunters and preys amount and progress
-	if (HUNTERS.size != DOM.get('hunters-number').innerHTML) {
-		DOM.get('hunters-number').innerHTML = HUNTERS.size;
-		DOM.get('hunters-progress').style.width = Math.min(HUNTERS.size / HUNTER.maxAmount * 100, 100) + '%';
+	if (HUNTERS.size != document.getElementById('hunters-number').innerHTML) {
+		document.getElementById('hunters-number').innerHTML = HUNTERS.size;
+		document.getElementById('hunters-progress').style.width = Math.min(HUNTERS.size / HUNTER.maxAmount * 100, 100) + '%';
 	}
-	if (PREYS.size != DOM.get('preys-number').innerHTML) {
-		DOM.get('preys-number').innerHTML = PREYS.size;
-		DOM.get('preys-progress').style.width = Math.min(PREYS.size / PREY.maxAmount * 100, 100) + '%';
+	if (PREYS.size != document.getElementById('preys-number').innerHTML) {
+		document.getElementById('preys-number').innerHTML = PREYS.size;
+		document.getElementById('preys-progress').style.width = Math.min(PREYS.size / PREY.maxAmount * 100, 100) + '%';
 	}
 	requestAnimationFrame(animate);
 }
 
 function start() {
 	PARAMS.running = true;
-	const btn = DOM.get('button-start-stop');
+	const btn = document.getElementById('button-start-stop');
 
 	btn.classList.remove('start');
 	btn.classList.add('stop');
@@ -182,7 +186,7 @@ function start() {
 
 function stop() {
 	PARAMS.running = false;
-	const btn = DOM.get('button-start-stop');
+	const btn = document.getElementById('button-start-stop');
 
 	btn.classList.remove('stop');
 	btn.classList.add('start');
@@ -197,18 +201,19 @@ function reset() {
 }
 
 function resetSettings() {
-	['.cb-checkbox', '.trackbar', '.select'].forEach(selector => {
-		$(selector).forEach(el => {
+	['cb-checkbox', 'trackbar', 'select'].forEach(className => {
+		[...document.getElementsByClassName(className)].forEach(el => {
 			let defaultVal = el.dataset['default'];
-
-			if (typeof defaultVal === 'boolean') {
-				el.checked = defaultVal;
-			} else {
-				el.value = defaultVal;
+			switch (el.type) {
+				case 'checkbox':
+					el.checked = defaultVal === 'true';
+					break;
+				default:
+					el.value = defaultVal;
+					break;
 			}
 		});
 	});
-
 	updateSettingsValues();
 }
 
@@ -219,6 +224,7 @@ function updateSettingsValues() {
 	updateSpecies();
 	updateColorSpeed();
 	updateCollisions();
+	updateMute();
 	updateRGB();
 }
 
@@ -235,73 +241,80 @@ function mouseUp() {
 }
 
 function updateHunterGrowth() {
-	HUNTER.growth = parseInt(DOM.get('hunters-growth').value);
+	HUNTER.growth = parseInt(document.getElementById('hunters-growth').value);
 }
 
 function updateHunterSpeed() {
-	HUNTER.speed = parseInt(DOM.get('hunters-speed').value);
+	HUNTER.speed = parseInt(document.getElementById('hunters-speed').value);
 }
 
 function updatePreySize() {
-	PREY.size = parseInt(DOM.get('preys-size').value) / 100;
+	PREY.size = parseInt(document.getElementById('preys-size').value) / 100;
 	PREY.nutrition = PREY.size;
 }
 
 function updateCollisions() {
-	PARAMS.collisions = DOM.get('cb-collisions').checked;
+	PARAMS.collisions = document.getElementById('cb-collisions').checked;
+}
+
+function updateMute() {
+	PARAMS.mute = document.getElementById('cb-mute').checked;
+	Hunter.player.mute(PARAMS.mute);
 }
 
 function updateColorSpeed() {
-	PARAMS.colorSpeed = parseInt(DOM.get('color-speed').value);
+	PARAMS.colorSpeed = parseInt(document.getElementById('color-speed').value);
 }
 
 function updateRGB() {
-	PARAMS.colorChanging = DOM.get('cb-rgb').checked;
+	PARAMS.colorChanging = document.getElementById('cb-rgb').checked;
 
-	if (! DOM.get('cb-rgb').checked) {
-		rgbDOM.forEach(el => {
-			el.style.color = null;
-		});
+	if (! document.getElementById('cb-rgb').checked) {
+		rgbRule.style.color = '';
 	}
 }
 
 function resetEntities() {
 	PARAMS.hovered = null;
-	HUNTERS.clear();
-	PREYS.clear();
+	HUNTERS.forEach(hunter => {
+		hunter.remove();
+	});
+	PREYS.forEach(prey => {
+		prey.remove();
+	});
 }
 
 function generateChangelog() {
 	let versionItems = [];
 
-	Object.keys(Changelog).forEach(version => {
+	Object.keys(CHANGELOG).forEach(version => {
 		let versionTag = document.createElement('div');
 		versionTag.classList.add('version-title');
 		versionTag.innerHTML = version;
 
 		let versionItemsList = document.createElement('ul');
-		Changelog[version].forEach(item => {
+		CHANGELOG[version].forEach(item => {
 			let li = document.createElement('li');
 			li.innerHTML = item;
 			versionItemsList.append(li);
 		});
 		
-		DOM.get('changelog-items').append(versionTag);
-		DOM.get('changelog-items').append(document.createElement('hr'));
-		DOM.get('changelog-items').append(versionItemsList);
+		document.getElementById('changelog-items').append(versionTag);
+		document.getElementById('changelog-items').append(document.createElement('hr'));
+		document.getElementById('changelog-items').append(versionItemsList);
 	});
 }
 
 function toggleChangelog(state) {
 	PARAMS.changelogVisible = state;
 
-	$('.wrapper').style.opacity = state ? 0.2 : 1;
-	DOM.get('changelog').style.display = state ? 'block' : 'none';
+	document.getElementsByClassName('wrapper')[0].style.opacity = state ? 0.2 : 1;
+	document.getElementById('changelog').style.display = state ? 'block' : 'none';
 
 }
 
 function updateSpecies() {
-	HUNTER.species = $('input[name="hunters-species"]:checked').value;
-	PREY.species = $('input[name="preys-species"]:checked').value;
-	PREY.img = DOM.get(PREY.species);
+	HUNTER.species = document.querySelector('input[name="hunters-species"]:checked').value;
+	PREY.species = document.querySelector('input[name="preys-species"]:checked').value;
+	PREY.img = document.getElementById(PREY.species);
 }
