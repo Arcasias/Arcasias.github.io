@@ -1,5 +1,14 @@
 const HUNTERS = new Map();
 
+const MOODS = {
+	'happy': 2,
+	'joyful': 1,
+	'normal': 0,
+	'sad': -1,
+	'depressed': -2,
+	'cannibal': -3,
+};
+
 class Hunter extends Entity {
 
 	_type = HUNTER.type;
@@ -11,6 +20,7 @@ class Hunter extends Entity {
 	constructor(type, options) {
 		super(type, options);
 
+		this._mood = options.mood || 'normal';
 		this._talking = options.talking || false;
 		this._text = {
 			text: options.text || '',
@@ -32,6 +42,13 @@ class Hunter extends Entity {
 			this._resetVelocity(true)
 		}
 		super.species = species;
+	}
+
+	get mood() {
+		return this._mood;
+	}
+	set mood(mood) {
+		this._mood = mood;
 	}
 
 	get text() {
@@ -114,14 +131,47 @@ class Hunter extends Entity {
 						y: yFromDistance(this._x, this._y, this._objective._x, this._objective._y) * (this.x < this._objective.x ? 1 : -1),
 					};
 				}
-				this._x += this._velocity.x * this._speed;
-				this._y += this._velocity.y * this._speed;
+				let moodMult = 1;
+				switch (this._mood) {
+					case 'happy': 
+						moodMult = 1.5;
+						break;
+					case 'joyful': 
+						moodMult = 1.25;
+						break;
+					case 'sad':
+						moodMult = 0.75;
+						break;
+					case 'depressed':
+						moodMult = 0.5;
+						break;
+					case 'cannibal':
+						moodMult = 1.1;
+						break;
+				}
+				this._x += this._velocity.x * this._speed * moodMult;
+				this._y += this._velocity.y * this._speed * moodMult;
 			}
 		} else if (! this._talking && Math.random() < 1 / 1000) {
 			this._startTalking('pending');
 		}
+		if (Math.random() < 1 / (5000 * Math.abs(MOODS[this._mood || 1]))) {
+			this._changeMood();
+		}
 
 		return this;
+	}
+
+	_changeMood() {
+		let moodValue = MOODS[this._mood];
+		let possibleMoods = [];
+		Object.keys(MOODS).forEach(moodName => {
+			if (MOODS[moodName] === moodValue + 1 || MOODS[moodName] === moodValue - 1) {
+				possibleMoods.push(moodName);
+			}
+		});
+		this._mood = choice(possibleMoods);
+		console.log(this._mood);
 	}
 
 	/**
@@ -149,7 +199,7 @@ class Hunter extends Entity {
 		this._startTalking('exploding', true);
 
 		this._exploding = setTimeout(() => {
-			for (let i = 0; i < (HUNTERS.size < HUNTER.maxAmount ? HUNTER.growth : 1); i ++) {
+			for (let i = 0; i < (HUNTERS.size < HUNTER.maxAmount ? Math.floor(Math.random() * (HUNTER.growth - 1)) + 1 : 1); i ++) {
 				let newHunter = new Hunter(this._species, {
 					x: this._x,
 					y: this._y,
@@ -167,11 +217,16 @@ class Hunter extends Entity {
 	}
 
 	_newObjective() {
-		if (PREYS.size === 0) {
+		let targets = this._mood === 'cannibal' ? HUNTERS : PREYS;
+
+		if (targets.size === 0) {
 			this._objective = null;
 		} else {
-			let feasible = [...PREYS.values()].filter(prey => prey.species === SPECIES[this._species].target);
-
+			let feasible =[...targets.values()].filter(entity => {
+				return (this._mood === 'cannibal') ?
+					entity => entity !== this :
+					entity.species === SPECIES[this._species].target;
+			});
 			if (feasible.length === 0) {
 				this._objective = null;
 			} else {

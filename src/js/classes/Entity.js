@@ -21,6 +21,7 @@ class Entity {
 		this._h = options.h || this._img.clientHeight;
 		this._size = options.size || 0.1;
 		this._baseSize = this._size;
+		this._nutrition = options.nutrition || this._size;
 		this._mass = options.mass || 1;
 		this._speed = options.speed || 1;
 		this._velocity = options.velocity || { x : 0, y : 0 };
@@ -125,6 +126,16 @@ class Entity {
 			this._velocity.y = velocity.y;
 		}
 	}
+
+    /**
+     * @property {number} nutrition Entity nutritive value
+     */
+    get nutrition() {
+        return this._nutrition;
+    }
+    set nutrition(nutrition) {
+        this._nutrition = nutrition;
+    }
 
 	/**
 	 * @property {boolean} dragging Entity dragged state

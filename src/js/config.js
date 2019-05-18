@@ -2,6 +2,7 @@ const HUNTER = {
     img: null,
     growth: null,
     maxAmount: 1000,
+    nutrition: 0,
     size: 0.2,
     species: null,
     speed: null,

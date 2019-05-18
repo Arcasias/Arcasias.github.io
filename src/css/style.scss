@@ -7,6 +7,7 @@ $pale_gold : #f0c040;
 $red : #800000;
 $pale_red : #a02020;
 
+$box_shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.8);
 $mainFont : "Arial";
 
 @mixin gradient($col1, $col2) {
@@ -104,7 +105,7 @@ h1, h2, h3, input {
 			display: flex;
 			width: 90%;
 			align-items: center;
-			box-shadow: 0 0 20px 0 gray;
+			box-shadow: $box_shadow;
 			color: $gold;
 			* {
 				flex: 1;
@@ -179,7 +180,7 @@ h1, h2, h3, input {
 	z-index: 9999;
 	position: absolute;
 	display: none;
-	box-shadow: 0px 0px 16px 0px rgba(0,0,0,0.8);
+	box-shadow: $box_shadow;
 
 	.changelog-header {
 		display: flex;
@@ -273,10 +274,15 @@ h1, h2, h3, input {
 	    -webkit-appearance: none;
 	    width: 10px;
 	    height: 20px;
-	    box-shadow: 1px 1px 8px $black;
     	border-radius: 2px;
 	    background: $gold;
 	    cursor: pointer;
+	    transition: 0.2s;
+
+	    &:hover {
+	    	height: 25px;
+	    	background-color: $pale_gold;
+	    }
     }
 }
 
@@ -313,6 +319,7 @@ h1, h2, h3, input {
 		    background-color: $pale_black;
 		    position: absolute;
 		    border-radius: 2px;
+		    transition: opacity 0.2s;
 
 		    &:after {
 			    content: "";
@@ -326,6 +333,10 @@ h1, h2, h3, input {
 			    border-width: 0 3px 3px 0;
 			    transform: rotate( 45deg );
 			}
+
+			&:hover {
+	    		opacity: 0.6;
+			}
 		}
 	}
 }
@@ -337,28 +348,37 @@ h1, h2, h3, input {
 	z-index: 9;
 }
 
+@keyframes background-circle {
+	0% { margin: 20px; width: 0; height: 0; }
+	100% { margin: 0; width: 40px; height: 40px; }
+}
+
 .radio-group {
 	width: 100%;
 	height: 100%;
 
-	label {
-		width: 0;
-		height: 0;
+	.radio-item {
+		width: 40px;
+		height: 40px;
+		display: inline-block;
 
 		.preview {
-			width: 30px;
-			height: 30px;
-			display: inline-block;
-			padding: 5px;
-			cursor: pointer;
+			width: 100%;
+			height: 100%;
 			border-radius: 100%;
-			transition: border-color 0.2s;
-			text-align: center;
-		}
+			cursor: pointer;
+			transition: opacity 0.2s;
 
-		.preview img {
-			max-height: 100%;
-			max-width: 100%;
+			img {
+				max-height: 30px;
+				max-width: 30px;
+				margin: 5px;
+				position: absolute;
+			}
+
+			&:hover {
+				opacity: 0.6;
+			}
 		}
 
 		[type=radio] {
@@ -368,7 +388,15 @@ h1, h2, h3, input {
 		}
 
 		[type=radio]:checked + .preview {
-			background-color: $pale_gold;
+
+			.preview-background {
+				animation: background-circle 0.2s ease;
+				border-radius: 100%;
+				width: 40px;
+				height: 40px;
+				position: absolute;
+				background-color: $pale_gold;
+			}
 		}
 	}
 }

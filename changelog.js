@@ -1,4 +1,9 @@
 const CHANGELOG = {
+    "v0.9 - Moods": [
+        "Hunters now have a <b>mood</b>",
+        "If the mood goes up, the hunter goes <b>faster</b>",
+        "If it gets too low, the hunter starts to <b>eat other hunters</b> out of sheer depression",
+    ],
     "v0.8 - Sounds": [
         "Hunters now trigger a <b>SOUND</b> when talking",
         "Apart from that, just <b>cleaned</b> the code",

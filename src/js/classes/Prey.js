@@ -10,23 +10,8 @@ class Prey extends Entity {
      */
 	constructor(species, options) {
 		super(species, options);
-
-		this._nutrition = options.nutrition || 0;
         PREYS.set(this._id, this);
 	}
-
-    /**
-     * @property {number} nutrition Prey nutritive value
-     */
-    get nutrition() {
-        return this._nutrition;
-    }
-    set nutrition(nutrition) {
-        if (isNaN(nutrition)) {
-            throw new TypeError("\"nutrition\" must of type \"number\"");
-        }
-        this._nutrition = nutrition;
-    }
 
     /**
      * @override

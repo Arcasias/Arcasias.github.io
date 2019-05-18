@@ -33,6 +33,9 @@ class Player {
         } else {
             this._mute = muting;
         }
+        if (! this._loaded) {
+            return;
+        }
         this._sounds.forEach(sound => {
             sound.audios.forEach(audio => {
                 audio.muted = this._mute;

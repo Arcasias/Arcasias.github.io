@@ -78,12 +78,12 @@ let rgbRule;
 			y: PARAMS.mouse.y,
 			img: PREY.img,
 			size: PREY.size,
-			nutrition: PREY.nutrition,
 		});
 	});
 
 	await nextTick();
 
+	resetSettings();
 	init();
 	animate();
 });
@@ -250,7 +250,6 @@ function updateHunterSpeed() {
 
 function updatePreySize() {
 	PREY.size = parseInt(document.getElementById('preys-size').value) / 100;
-	PREY.nutrition = PREY.size;
 }
 
 function updateCollisions() {
