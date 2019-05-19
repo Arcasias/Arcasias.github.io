@@ -140,8 +140,11 @@ function animate() {
 	PARAMS.c.clearRect(0, 0, PARAMS.canvas.width, PARAMS.canvas.height);
 	PARAMS.c.font = PARAMS.font;
 
-	updateEntities([...HUNTERS.values()]);
-	updateEntities([...PREYS.values()]);
+	let entities = [...HUNTERS.values()].concat([...PREYS.values()]);
+	entities.sort((a, b) => a.zid - b.zid)
+	    .forEach(entity => {
+	        entity.update();
+	    });
 
 	// Draw loops cursor if no entity is hovered
 	if (PARAMS.hovered) {

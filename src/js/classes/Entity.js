@@ -14,12 +14,18 @@ class Entity {
 
 		// Object variables
 		this._species = species;
-		this._x = options.x || 0;
-		this._y = options.y || 0;
+		this._x = 0;
+		this._y = 0;
 		this._img = options.img || null;
 		this._w = options.w || this._img.clientWidth;
 		this._h = options.h || this._img.clientHeight;
 		this.size = options.size || 0.1;
+		if (options.x) {
+			this.x = options.x;
+		}
+		if (options.y) {
+			this.y = options.y;
+		}
 		this._baseSize = this._size;
 		this._nutrition = options.nutrition || null;
 		this._mass = options.mass || 1;
@@ -42,20 +48,20 @@ class Entity {
 	 * @property {number} x Position on x axis
 	 */
 	get x() {
-		return this._x - this.w / 2;
+		return this._x + this.w / 2;
 	}
 	set x(x) {
-		this._x = x;
+		this._x = x - this.w / 2;
 	}
 
 	/**
 	 * @property {number} y Position on y axis
 	 */
 	get y() {
-		return this._y - this.h / 2;
+		return this._y + this.h / 2;
 	}
 	set y(y) {
-		this._y = y;
+		this._y = y - this.h / 2;
 	}
 
 	/**
@@ -157,10 +163,10 @@ class Entity {
 	 * @property {boolean} hovered Wether the entity is hovered
 	 */
 	get hovered() {
-		return this.x < PARAMS.mouse.x &&
-			PARAMS.mouse.x < this.x + this.w &&
-			this.y < PARAMS.mouse.y &&
-			PARAMS.mouse.y < this.y + this.h;
+		return this._x < PARAMS.mouse.x &&
+			PARAMS.mouse.x < this._x + this.w &&
+			this._y < PARAMS.mouse.y &&
+			PARAMS.mouse.y < this._y + this.h;
 	}
 
 	startDragging() {
@@ -193,37 +199,32 @@ class Entity {
 		this._draw();
 
 		if (PARAMS.collisions) {
-			[...HUNTERS.values()].forEach(hunter => {
-				if (this !== hunter && detectCollision(this, hunter)) {
-					resolveCollision(this, hunter);
-				}
-			});
-			[...PREYS.values()].forEach(prey => {
-				if (this !== prey && detectCollision(this, prey)) {
-					resolveCollision(this, prey);
+			[...HUNTERS.values()].concat([...PREYS.values()]).forEach(entity => {
+				if (this !== entity && this._detectCollision(entity)) {
+					this._resolveCollision(entity);
 				}
 			});
 		}
 		// Follow the mouse when dragged
 		if (this._dragging) {
-			this._x = PARAMS.mouse.x;
-			this._y = PARAMS.mouse.y;
+			this.x = PARAMS.mouse.x;
+			this.y = PARAMS.mouse.y;
 		}
 		// Can't go out of boundaries for X axis ...
-		if (this.x <= 0) {
+		if (this._x <= 0) {
 			this._velocity.x *= -1;
-			this._x = this.w / 2;
-		} else if (PARAMS.canvas.width <= this.x + this.w) {
+			this._x = 0;
+		} else if (PARAMS.canvas.width <= this._x + this.w) {
 			this._velocity.x *= -1;
-			this._x = PARAMS.canvas.width - this.w / 2;
+			this._x = PARAMS.canvas.width - this.w;
 		}
 		// ... same for Y axis
-		if (this.y <= 0) {
+		if (this._y <= 0) {
 			this._velocity.y *= -1;
-			this._y = this.h / 2;
-		} else if (PARAMS.canvas.height <= this.y + this.h) {
+			this._y = 0;
+		} else if (PARAMS.canvas.height <= this._y + this.h) {
 			this._velocity.y *= -1;
-			this._y = PARAMS.canvas.height - this.h / 2;
+			this._y = PARAMS.canvas.height - this.h;
 		}
 		// Handles hovered state
 		if (this.hovered) {
@@ -237,8 +238,16 @@ class Entity {
 		return this;
 	}
 
+	_detectCollision(entity) {
+	    return entity._x < this._x + this.w &&
+	        this._x < entity._x + entity.w &&
+	        entity._y < this._y + this.h &&
+	        this._y < entity._y + entity.h;
+	}
+
+
 	_draw() {
-		PARAMS.c.drawImage(this._img, this.x, this.y, this.w, this.h);
+		PARAMS.c.drawImage(this._img, this._x, this._y, this.w, this.h);
 
 		return this;
 	}
@@ -250,6 +259,27 @@ class Entity {
 		};
 
 		return this;
+	}
+
+	_resolveCollision(entity) {
+	    let distX = entity.x - this.x;
+	    let distY = entity.y - this.y;
+
+	    if (0 <= (this.velocity.x - entity.velocity.x) * distX + (this.velocity.y - entity.velocity.y) * distY) {
+	        let angle = Math.atan2(distY, distX) * -1;
+
+	        let u1 = rotate(this.velocity, angle);
+	        let u2 = rotate(entity.velocity, angle);
+	    
+	        this.velocity = rotate({
+	            x: u1.x * (this.mass - entity.mass) / (this.mass + entity.mass) + u2.x * 2 * entity.mass / (this.mass + entity.mass),
+	            y: u1.y,
+	        }, angle * -1);
+	        entity.velocity = rotate({
+	            x: u2.x * (this.mass - entity.mass) / (this.mass + entity.mass) + u1.x * 2 * entity.mass / (this.mass + entity.mass),
+	            y: u2.y,
+	        }, angle * -1);
+	    }
 	}
 
 	_toFront() {

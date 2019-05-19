@@ -107,6 +107,10 @@ class Hunter extends Entity {
 	update() {
 		super.update();
 
+		if (window.debugging) {
+			this._mood = 100;
+		}
+
 		if (this._exploding) {
 			this._explodingIntensity ++;
 			this._x += Math.random() * this._explodingIntensity / 5 - this._explodingIntensity / 10;
@@ -115,12 +119,12 @@ class Hunter extends Entity {
 			if (this._objective) {
 				if (this._objective.deleted) {
 					this._objectiveLost();
-				} else if (detectCollision(this, this._objective)) {
+				} else if (this._detectCollision(this._objective)) {
 					this._objectiveReached();
 				} else {
 					this._velocity = {
-						x: xFromDistance(this._x, this._y, this._objective._x, this._objective._y) * (this.x < this._objective.x ? 1 : -1),
-						y: yFromDistance(this._x, this._y, this._objective._x, this._objective._y) * (this.x < this._objective.x ? 1 : -1),
+						x: xFromDistance(this.x, this.y, this._objective.x, this._objective.y) * (this._x < this._objective._x ? 1 : -1),
+						y: yFromDistance(this.x, this.y, this._objective.x, this._objective.y) * (this._x < this._objective._x ? 1 : -1),
 					};
 				}
 			} else {
@@ -174,7 +178,11 @@ class Hunter extends Entity {
 		this._startTalking('exploding', true);
 
 		this._exploding = setTimeout(() => {
-			for (let i = 0; i < (HUNTERS.size < HUNTER.maxAmount ? Math.floor(Math.random() * 50) + 1 : 1); i ++) {
+			let amountOfChildren = HUNTERS.size < HUNTER.maxAmount ? Math.floor(Math.random() * 50) + 1 : 1;
+			if (window.debugging) {
+				amountOfChildren = 100;
+			}
+			for (let i = 0; i < amountOfChildren; i ++) {
 				let newHunter = new Hunter(this._species, {
 					x: this._x,
 					y: this._y,
