@@ -285,10 +285,9 @@ function onMouseUp() {
 
 // TODO gather all update...() into this
 function updateOptions(option) {
-	console.log(option);
 	let options = Array.isArray(option) ? option : [option];
 	options.forEach(opt => {
-		let el = document.getElementById(opt.target);
+		let el = opt.target || document.getElementById(opt.el);
 		let property = el.type === 'checkbox' ? 'checked' : 'value';
 		if (opt.setValue) {
 			el[property] = setValue;
