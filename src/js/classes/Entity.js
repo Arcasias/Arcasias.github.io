@@ -1,5 +1,5 @@
 const UID = new Unique();
-const UZID = new Unique();
+const UZID = new Unique(0);
 
 class Entity {
 	
@@ -8,7 +8,7 @@ class Entity {
 	 */
 	constructor(species, options) {
 		// Read only
-		this._id = UID.generate();
+		this._id = UID.generate(options.prefix || 'E');
 		this._zid = UZID.generate();
 		this._deleted = false;
 
@@ -101,7 +101,10 @@ class Entity {
 		return this._size;
 	}
 	set size(size) {
-		this._size = Math.floor(size * 100) / 100;
+		let previousPosition = [this.x, this.y];
+		this._size = Math.floor(size * 1000) / 1000;
+		this.x = previousPosition[0];
+		this.y = previousPosition[1];
 	}
 
 	/**
@@ -173,9 +176,6 @@ class Entity {
 		this._toFront();
 
 		this._dragging = true;
-
-		this._x = PARAMS.mouse.x;
-		this._y = PARAMS.mouse.y;
 
 		return this;
 	}

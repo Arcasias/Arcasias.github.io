@@ -8,6 +8,7 @@ class Prey extends Entity {
      * @constructor
      */
 	constructor(species, options) {
+        options.prefix = 'P';
 		super(species, options);
         PREYS.set(this._id, this);
 	}

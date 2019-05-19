@@ -8,6 +8,7 @@ class Hunter extends Entity {
 	 * @constructor
 	 */
 	constructor(species, options) {
+		options.prefix = 'H';
 		super(species, options);
 
 		this._mood = options.mood || 50;
@@ -160,15 +161,15 @@ class Hunter extends Entity {
 		super._draw();
 
 		if (this._talking) {
-			let color = PARAMS.colorChanging ? `rgb(${PARAMS.color.join(',')})` : '#000000';
+			let color = `rgb(${PARAMS.colorChanging ? PARAMS.color.join(',') : [0, 0, 0].join(',')})`;
 
 		    PARAMS.c.strokeStyle = color;
-		    PARAMS.c.strokeRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
+		    PARAMS.c.strokeRect(this._x + this.w / 2 - 10, this._y - 35, this._text.width + 20, this._text.height + 20);
 		    PARAMS.c.fillStyle = '#ffffff';
-		    PARAMS.c.fillRect(this.x + this.w / 2 - 10, this.y - 35, this._text.width + 20, this._text.height + 20);
+		    PARAMS.c.fillRect(this._x + this.w / 2 - 10, this._y - 35, this._text.width + 20, this._text.height + 20);
 		    
 		    PARAMS.c.fillStyle = color;
-		    PARAMS.c.fillText(this._text.text, this.x + this.w / 2, this.y - 8);
+		    PARAMS.c.fillText(this._text.text, this._x + this.w / 2, this._y - 8);
 		}
 
 		return this;
@@ -184,8 +185,8 @@ class Hunter extends Entity {
 			}
 			for (let i = 0; i < amountOfChildren; i ++) {
 				let newHunter = new Hunter(this._species, {
-					x: this._x,
-					y: this._y,
+					x: this.x,
+					y: this.y,
 					img: this._img,
 					size: Math.max(0.05, this._baseSize + (Math.random() * 0.05 - 0.025)),
 					speed: this._speed,

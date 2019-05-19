@@ -44,6 +44,16 @@ const PARAMS = {
     mouse: { x: 0, y: 0 },
     mute: false,
     running: false,
+
+    hunterImg: null,
+    hunterMaxAmount: 1000,
+    hunterSize: 0.2,
+    hunterSpecies: null,
+
+    preyImg: null,
+    preyMaxAmount: 1000,
+    preySize: 0.05,
+    preySpecies: null,
 };
 const PREY = {
     img: null,
