@@ -44,6 +44,14 @@ let rgbRule;
 		PARAMS.mouse.y = ev.clientY - PARAMS.canvas.offsetTop;
 	});
 
+	document.on('mousewheel', function (ev) {
+		let up = ev.deltaY < 0;
+
+		let val = parseInt(document.getElementById('preys-size').value);
+		document.getElementById('preys-size').value = val + 5 * (up ? 1 : -1);
+		updatePreySize();
+	});
+
 	window.on('resize', function () {
 		PARAMS.canvas.width = PARAMS.canvas.offsetWidth;
 		PARAMS.canvas.height = PARAMS.canvas.offsetHeight;
@@ -56,11 +64,10 @@ let rgbRule;
 	document.getElementById('button-reset-settings').on('click', resetSettings);
 	document.getElementById('button-open-changelog').on('click', toggleChangelog.bind(null, true));
 	document.getElementById('button-close-changelog').on('click', toggleChangelog.bind(null, false));
-	document.getElementById('hunters-growth').on('input', updateHunterGrowth);
-	document.getElementById('hunters-speed').on('input', updateHunterSpeed);
 	document.getElementById('preys-size').on('input', updatePreySize);
 	document.getElementById('color-speed').on('input', updateColorSpeed);
 	document.getElementById('cb-collisions').on('input', updateCollisions);
+	document.getElementById('cb-cannibalism').on('input', updateCannibalism);
 	document.getElementById('cb-mute').on('input', updateMute);
 	document.getElementById('cb-rgb').on('input', updateRGB);
 	[...document.getElementsByClassName('change-species')].forEach(speciesModifier => {
@@ -68,7 +75,7 @@ let rgbRule;
 	});
 
 	document.getElementById('game-area').on('mousedown', mouseDown);
-	document.getElementById('game-area').on('mouseup', mouseUp);
+	document.on('mouseup', mouseUp);
 	document.getElementById('game-area').on('click', () => {
 		if (PARAMS.hovered) {
 			return;
@@ -93,15 +100,18 @@ document.on('keydown', function (ev) {
 	// console.log(ev.keyCode);
 
 	switch (ev.keyCode) {
-		case 27 :	// Esc
+		case 27:	// Esc
 			if (PARAMS.changelogVisible) {
 				toggleChangelog(false);
 			}
 			break;
-		case 82 : 	// R
+		case 32:
+			PARAMS.running ? stop() : start();
+			break;
+		case 82: 	// R
 			resetSettings();
 			break;
-		case 112 :	// F1
+		case 112:	// F1
 			ev.preventDefault();
 			toggleChangelog(! PARAMS.changelogVisible);
 			break;
@@ -119,9 +129,9 @@ function init() {
 	let newHunter = new Hunter(HUNTER.species, {
 		x: PARAMS.canvas.width / 2,
 		y: PARAMS.canvas.height / 2,
-		img: document.getElementById(HUNTER.species),
+		img: HUNTER.img,
 		size: HUNTER.sizeMin,
-		speed: HUNTER.speed,
+		speed: 3,
 	});
 }
 
@@ -140,13 +150,9 @@ function animate() {
 			PARAMS.cursorHidden = false;
 		}
 	} else {
-		PARAMS.c.drawImage(
-			PREY.img,
-			PARAMS.mouse.x - (40 * PREY.img.clientWidth / PREY.img.clientHeight) / 2,
-			PARAMS.mouse.y - 20,
-			40 * PREY.img.clientWidth / PREY.img.clientHeight,
-			40,
-		);
+		let width = PREY.img.clientWidth * PREY.size;
+		let height = PREY.img.clientWidth * PREY.size;
+		PARAMS.c.drawImage(PREY.img, PARAMS.mouse.x - width / 2, PARAMS.mouse.y - height / 2, width, height);
 		if (! PARAMS.cursorHidden) {
 			document.getElementById('game-area').classList.add('hide-cursor');
 			PARAMS.cursorHidden = true;
@@ -171,6 +177,21 @@ function animate() {
 	if (PREYS.size != document.getElementById('preys-number').innerHTML) {
 		document.getElementById('preys-number').innerHTML = PREYS.size;
 		document.getElementById('preys-progress').style.width = Math.min(PREYS.size / PREY.maxAmount * 100, 100) + '%';
+	}
+	// Update status text
+	if (PARAMS.hovered) {
+		document.getElementsByClassName('status')[0].style.opacity = 1;
+		document.getElementById('status-id').innerHTML = PARAMS.hovered.id;
+		document.getElementById('status-species').innerHTML = PARAMS.hovered.species;
+		document.getElementById('status-size').innerHTML = PARAMS.hovered.size;
+		if (PARAMS.hovered.mood) {
+			document.getElementById('status-mood').innerHTML = `${PARAMS.hovered._mood} (${PARAMS.hovered.mood})`;
+			document.getElementById('status-mood').parentNode.style.opacity = 1;
+		} else {
+			document.getElementById('status-mood').parentNode.style.opacity = 0;
+		}
+	} else {
+		document.getElementsByClassName('status')[0].style.opacity = 0;
 	}
 	requestAnimationFrame(animate);
 }
@@ -218,12 +239,11 @@ function resetSettings() {
 }
 
 function updateSettingsValues() {
-	updateHunterGrowth();
-	updateHunterSpeed();
 	updatePreySize();
 	updateSpecies();
 	updateColorSpeed();
 	updateCollisions();
+	updateCannibalism();
 	updateMute();
 	updateRGB();
 }
@@ -240,20 +260,16 @@ function mouseUp() {
 	}
 }
 
-function updateHunterGrowth() {
-	HUNTER.growth = parseInt(document.getElementById('hunters-growth').value);
-}
-
-function updateHunterSpeed() {
-	HUNTER.speed = parseInt(document.getElementById('hunters-speed').value);
-}
-
 function updatePreySize() {
 	PREY.size = parseInt(document.getElementById('preys-size').value) / 100;
 }
 
 function updateCollisions() {
 	PARAMS.collisions = document.getElementById('cb-collisions').checked;
+}
+
+function updateCannibalism() {
+	PARAMS.cannibalism = document.getElementById('cb-cannibalism').checked;
 }
 
 function updateMute() {
@@ -313,7 +329,14 @@ function toggleChangelog(state) {
 }
 
 function updateSpecies() {
+	let previousHunter = HUNTER.species;
+
 	HUNTER.species = document.querySelector('input[name="hunters-species"]:checked').value;
+	HUNTER.img = document.getElementById(HUNTER.species);
 	PREY.species = document.querySelector('input[name="preys-species"]:checked').value;
 	PREY.img = document.getElementById(PREY.species);
+
+	if (previousHunter !== HUNTER.species) {
+		reset();
+	}
 }

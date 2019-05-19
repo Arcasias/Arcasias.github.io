@@ -1,8 +1,11 @@
 const CHANGELOG = {
     "v0.9 - Moods": [
         "Hunters now have a <b>mood</b>",
-        "If the mood goes up, the hunter goes <b>faster</b>",
-        "If it gets too low, the hunter starts to <b>eat other hunters</b> out of sheer depression",
+        "<b>Speed</b> is directly affected by the mood",
+        "Mood can be affected by <b>getting</b> (or losing) its prey, being <b>dragged around</b>, or can simply decay over <b>time</b>",
+        "Hunters start <b>eating each other</b> when they're too depressed",
+        "Added <b>mousewheel</b> control over <b>prey size</b>",
+        "Added <b>thresholds</b> for minimum prey and hunter <b>size</b>. No one likes tiny invisible objects",
     ],
     "v0.8 - Sounds": [
         "Hunters now trigger a <b>SOUND</b> when talking",

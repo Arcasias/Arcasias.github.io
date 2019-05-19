@@ -1,14 +1,37 @@
 const HUNTER = {
     img: null,
-    growth: null,
     maxAmount: 1000,
-    nutrition: 0,
     size: 0.2,
     species: null,
-    speed: null,
-    type: 'hunter',
 };
+const MOODS = [
+    {
+        name: 'euphoric',
+        value: 100,
+    },
+    {
+        name: 'happy',
+        value: 90,
+    },
+    {
+        name: 'joyful',
+        value: 70,
+    },
+    {
+        name: 'normal',
+        value: 30,
+    },
+    {
+        name: 'sad',
+        value: 10,
+    },
+    {
+        name: 'depressed',
+        value: 0,
+    },
+].sort((a, b) => a.value - b.value);
 const PARAMS = {
+    cannibalism: false,
     canvas: null,
     collisions: false,
     color: [255, 0, 0],
@@ -25,10 +48,8 @@ const PARAMS = {
 const PREY = {
     img: null,
     maxAmount: 1000,
-    nutrition: 0,
     size: 0.05,
     species: null,
-    type: 'prey',
 };
 const SPECIES = {
     brother: {

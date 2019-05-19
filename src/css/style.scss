@@ -61,6 +61,21 @@ h1, h2, h3, input {
 		@include gradient($pale_gold, $gold);
 	}
 
+	.status {
+		flex: 1;
+		color: $white;
+
+		li {
+			display: inline;
+			text-decoration: none;
+			padding: 10px;
+
+			span {
+				color: $gold;
+			}
+		}
+	}
+
 	.button {
 		height: 100%;
 		font-size: 30px;

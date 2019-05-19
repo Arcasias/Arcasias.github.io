@@ -1,26 +1,16 @@
 const HUNTERS = new Map();
 
-const MOODS = {
-	'happy': 2,
-	'joyful': 1,
-	'normal': 0,
-	'sad': -1,
-	'depressed': -2,
-	'cannibal': -3,
-};
-
 class Hunter extends Entity {
 
-	_type = HUNTER.type;
 	static player = new Player(50, 100);
 
 	/**
 	 * @constructor
 	 */
-	constructor(type, options) {
-		super(type, options);
+	constructor(species, options) {
+		super(species, options);
 
-		this._mood = options.mood || 'normal';
+		this._mood = options.mood || 50;
 		this._talking = options.talking || false;
 		this._text = {
 			text: options.text || '',
@@ -37,6 +27,9 @@ class Hunter extends Entity {
 	/**
 	 * @override
 	 */
+	get species() {
+		return super.species;
+	}
 	set species(species) {
 		if (species != this._species && this._objective && SPECIES[species].target != this._objective.species) {
 			this._resetVelocity(true)
@@ -45,19 +38,26 @@ class Hunter extends Entity {
 	}
 
 	get mood() {
-		return this._mood;
+		let currentMood;
+		if (this._mood === 0 && PARAMS.cannibalism) {
+			currentMood = 'cannibal';
+		} else {
+			MOODS.forEach(mood => {
+				if (mood.value <= this._mood) {
+					currentMood = mood.name;
+				}
+			});
+		}
+		return currentMood;
 	}
 	set mood(mood) {
-		this._mood = mood;
+		this._mood = Math.max(0, Math.min(100, mood));
 	}
 
 	get text() {
 		return this._text.text;
 	}
 	set text(text) {
-		if (typeof text !== 'string') {
-			throw new TypeError("\"text\" must of type \"string\"");
-		}
 		this._text = {
 			text: text,
 			width: PARAMS.c.measureText(text).width,
@@ -85,6 +85,7 @@ class Hunter extends Entity {
 		super.startDragging();
 
 		this._startTalking('dragged', true);
+		this._changeMood(-1);
 
 		return this;
 	}
@@ -113,65 +114,39 @@ class Hunter extends Entity {
 		} else if (PARAMS.running && this._speed > 0) {
 			if (this._objective) {
 				if (this._objective.deleted) {
-					this._newObjective();
-					this._resetVelocity(true);
+					this._objectiveLost();
 				} else if (detectCollision(this, this._objective)) {
-					return this._objectiveReached();
-				}
-			} else {
-				this._newObjective();
-			}
-			if (! this._talking && Math.random() < 1 / 1000) {
-				this._startTalking();
-			}
-			if (! this._dragging && this._moving) {
-				if (this._objective) {
+					this._objectiveReached();
+				} else {
 					this._velocity = {
 						x: xFromDistance(this._x, this._y, this._objective._x, this._objective._y) * (this.x < this._objective.x ? 1 : -1),
 						y: yFromDistance(this._x, this._y, this._objective._x, this._objective._y) * (this.x < this._objective.x ? 1 : -1),
 					};
 				}
-				let moodMult = 1;
-				switch (this._mood) {
-					case 'happy': 
-						moodMult = 1.5;
-						break;
-					case 'joyful': 
-						moodMult = 1.25;
-						break;
-					case 'sad':
-						moodMult = 0.75;
-						break;
-					case 'depressed':
-						moodMult = 0.5;
-						break;
-					case 'cannibal':
-						moodMult = 1.1;
-						break;
-				}
+			} else {
+				this._objectiveSearch();
+			}
+			// 0.1% chance to start talking
+			if (! this._talking && Math.random() < 1 / 1000) {
+				this._startTalking();
+			}
+			// If hunter is free to go and can move
+			if (! this._dragging && this._moving) {
+				let moodMult = this.mood === 'cannibal' ? 1.2 : Math.max(1, this._mood) / 50;
 				this._x += this._velocity.x * this._speed * moodMult;
 				this._y += this._velocity.y * this._speed * moodMult;
 			}
 		} else if (! this._talking && Math.random() < 1 / 1000) {
 			this._startTalking('pending');
 		}
-		if (Math.random() < 1 / (5000 * Math.abs(MOODS[this._mood || 1]))) {
-			this._changeMood();
-		}
 
 		return this;
 	}
 
-	_changeMood() {
-		let moodValue = MOODS[this._mood];
-		let possibleMoods = [];
-		Object.keys(MOODS).forEach(moodName => {
-			if (MOODS[moodName] === moodValue + 1 || MOODS[moodName] === moodValue - 1) {
-				possibleMoods.push(moodName);
-			}
-		});
-		this._mood = choice(possibleMoods);
-		console.log(this._mood);
+	_changeMood(plus=0) {
+		this.mood = this._mood + (plus || (Math.random() > 0.5 ? 1 : - 1));
+
+		return this;
 	}
 
 	/**
@@ -199,12 +174,12 @@ class Hunter extends Entity {
 		this._startTalking('exploding', true);
 
 		this._exploding = setTimeout(() => {
-			for (let i = 0; i < (HUNTERS.size < HUNTER.maxAmount ? Math.floor(Math.random() * (HUNTER.growth - 1)) + 1 : 1); i ++) {
+			for (let i = 0; i < (HUNTERS.size < HUNTER.maxAmount ? Math.floor(Math.random() * 50) + 1 : 1); i ++) {
 				let newHunter = new Hunter(this._species, {
 					x: this._x,
 					y: this._y,
 					img: this._img,
-					size: this._baseSize + (Math.random() * 0.05 - 0.025),
+					size: Math.max(0.05, this._baseSize + (Math.random() * 0.05 - 0.025)),
 					speed: this._speed,
 				});
 				HUNTERS.set(newHunter.id, newHunter);
@@ -216,43 +191,71 @@ class Hunter extends Entity {
 		return this;
 	}
 
-	_newObjective() {
-		let targets = this._mood === 'cannibal' ? HUNTERS : PREYS;
-
-		if (targets.size === 0) {
-			this._objective = null;
-		} else {
-			let feasible =[...targets.values()].filter(entity => {
-				return (this._mood === 'cannibal') ?
-					entity => entity !== this :
-					entity.species === SPECIES[this._species].target;
-			});
-			if (feasible.length === 0) {
-				this._objective = null;
-			} else {
-				this._objective = choice(feasible);
-				if (Math.random() < 1 / (100 / 15)) {
-					this._startTalking(this._objective ? 'seek' : 'notfound', true);
-				}
-			}
+	_objectiveFound() {
+		if (this.mood !== 'cannibal') {
+			this.mood = this._mood + 5;
 		}
+
+		return this;
+	}
+
+	_objectiveLost() {
+		this.mood = this._mood - 10;
+		this._objective = null;
+
+		this._resetVelocity()
+			._objectiveSearch();
+
+		if (Math.random() < 1 / (100 / 15)) {
+			this._startTalking('notfound', true);
+		}
+
 		return this;
 	}
 
 	_objectiveReached() {
-		this._startTalking('found', true);
-
-		let nutrition = this._objective.nutrition;
+		this.mood = this._mood + 10;
+		this.size += this._objective.nutrition;
 
 		this._objective.remove();
 
-		this._newObjective();
-
-		this._size += nutrition;
+		this._startTalking('found', true)
+			._objectiveSearch();
 
 		if (this._size >= 1) {
 			this._explode();
 		}
+
+		return this;
+	}
+
+	_objectiveSearch() {
+		// Accepted types
+		let targets = [...PREYS.values()].filter(prey => prey.species === SPECIES[this._species].target)
+			.concat(this.mood === 'cannibal' ? [...HUNTERS.values()].filter(hunter => hunter !== this) : []);
+		if (targets.length === 0) {
+			this._objective = null;
+		} else {
+			let closestEntity;
+			let closestDistance = Infinity;
+			targets.forEach(entity => {
+				let distance = Math.sqrt((entity.x - this.x) ** 2 + (entity.y - this.y) ** 2);
+				if (distance < closestDistance) {
+					closestDistance = distance;
+					closestEntity = entity;
+				}
+			});
+			this._objective = closestEntity;
+			if (Math.random() < 1 / (100 / 15)) {
+				this._startTalking('seek', true);
+			}
+			return this._objectiveFound();
+		}
+		// 0.5% chance on each search for mood to decrease
+		if (! this._objective && Math.random() < 1 / 200) {
+			this._changeMood(-1);
+		}
+
 		return this;
 	}
 

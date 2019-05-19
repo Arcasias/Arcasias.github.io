@@ -2,7 +2,6 @@ const PREYS = new Map();
 
 class Prey extends Entity {
 
-    _type = PREY.type;
     _moving = false;
 
     /**

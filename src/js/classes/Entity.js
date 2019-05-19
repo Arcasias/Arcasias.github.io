@@ -19,15 +19,14 @@ class Entity {
 		this._img = options.img || null;
 		this._w = options.w || this._img.clientWidth;
 		this._h = options.h || this._img.clientHeight;
-		this._size = options.size || 0.1;
+		this.size = options.size || 0.1;
 		this._baseSize = this._size;
-		this._nutrition = options.nutrition || this._size;
+		this._nutrition = options.nutrition || null;
 		this._mass = options.mass || 1;
 		this._speed = options.speed || 1;
 		this._velocity = options.velocity || { x : 0, y : 0 };
 		this._moving = options.moving || true;
 		this._dragging = options.dragging || false;
-		this._type = options.type || undefined;
 	}
 
 	/** @property {number} id Entity identifier */
@@ -92,6 +91,13 @@ class Entity {
 		this._h = this._img.clientHeight;
 	}
 
+	get size() {
+		return this._size;
+	}
+	set size(size) {
+		this._size = Math.floor(size * 100) / 100;
+	}
+
 	/**
 	 * @property {number} mass Entity mass
 	 */
@@ -131,7 +137,7 @@ class Entity {
      * @property {number} nutrition Entity nutritive value
      */
     get nutrition() {
-        return this._nutrition;
+        return this._nutrition || this._size;
     }
     set nutrition(nutrition) {
         this._nutrition = nutrition;
@@ -145,16 +151,6 @@ class Entity {
 	}
 	set dragging(dragging) {
 		this._dragging = dragging;
-	}
-
-	/**
-	 * @property {string} type Entity type
-	 */
-	get type() {
-		return this._type;
-	}
-	set type(type) {
-		this._type = type;
 	}
 
 	/**
@@ -208,22 +204,34 @@ class Entity {
 				}
 			});
 		}
-		if (this.x <= 0 || PARAMS.canvas.width <= this.x + this.w) {
+		// Follow the mouse when dragged
+		if (this._dragging) {
+			this._x = PARAMS.mouse.x;
+			this._y = PARAMS.mouse.y;
+		}
+		// Can't go out of boundaries for X axis ...
+		if (this.x <= 0) {
 			this._velocity.x *= -1;
+			this._x = this.w / 2;
+		} else if (PARAMS.canvas.width <= this.x + this.w) {
+			this._velocity.x *= -1;
+			this._x = PARAMS.canvas.width - this.w / 2;
 		}
-		if (this.y <= 0 || PARAMS.canvas.height <= this.y + this.h) {
+		// ... same for Y axis
+		if (this.y <= 0) {
 			this._velocity.y *= -1;
+			this._y = this.h / 2;
+		} else if (PARAMS.canvas.height <= this.y + this.h) {
+			this._velocity.y *= -1;
+			this._y = PARAMS.canvas.height - this.h / 2;
 		}
+		// Handles hovered state
 		if (this.hovered) {
 			if (! PARAMS.hovered || this.zid >= PARAMS.hovered.zid) {
 				PARAMS.hovered = this;
 			}
 		} else if (! this._dragging && this === PARAMS.hovered) {
 			PARAMS.hovered = null;
-		}
-		if (this._dragging) {
-			this._x = PARAMS.mouse.x;
-			this._y = PARAMS.mouse.y;
 		}
 
 		return this;
