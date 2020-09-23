@@ -2,13 +2,25 @@ const UID = new Unique();
 const UZID = new Unique(0);
 
 class Entity {
-	
+
 	/**
 	 * @constructor
 	 */
 	constructor(species, options) {
+		options = Object.assign({
+			prefix: "E",
+			img: null,
+			size: 1,
+			nutrition: null,
+			mass: 1,
+			speed: 1,
+			velocity: { x: 0, y: 0 },
+			moving: true,
+			dragging: false,
+		}, options);
+
 		// Read only
-		this._id = UID.generate(options.prefix || 'E');
+		this._id = UID.generate(options.prefix);
 		this._zid = UZID.generate();
 		this._deleted = false;
 
@@ -16,23 +28,23 @@ class Entity {
 		this._species = species;
 		this._x = 0;
 		this._y = 0;
-		this._img = options.img || null;
-		this._w = options.w || this._img.clientWidth;
-		this._h = options.h || this._img.clientHeight;
-		this.size = options.size || 0.1;
-		if (options.x) {
+		this._img = options.img;
+		this._w = "w" in options ? options.w : this._img.clientWidth;
+		this._h = "h" in options ? options.h : this._img.clientHeight;
+		this.size = options.size;
+		if ("x" in options) {
 			this.x = options.x;
 		}
-		if (options.y) {
+		if ("y" in options) {
 			this.y = options.y;
 		}
 		this._baseSize = this._size;
-		this._nutrition = options.nutrition || null;
-		this._mass = options.mass || 1;
-		this._speed = options.speed || 1;
-		this._velocity = options.velocity || { x : 0, y : 0 };
-		this._moving = options.moving || true;
-		this._dragging = options.dragging || false;
+		this._nutrition = options.nutrition;
+		this._mass = options.mass;
+		this._speed = options.speed;
+		this._velocity = options.velocity;
+		this._moving = options.moving;
+		this._dragging = options.dragging;
 	}
 
 	/** @property {number} id Entity identifier */
@@ -102,7 +114,7 @@ class Entity {
 	}
 	set size(size) {
 		let previousPosition = [this.x, this.y];
-		this._size = Math.floor(size * 1000) / 1000;
+		this._size = Math.floor(size * 1000) / 100000;
 		this.x = previousPosition[0];
 		this.y = previousPosition[1];
 	}
@@ -142,15 +154,15 @@ class Entity {
 		}
 	}
 
-    /**
-     * @property {number} nutrition Entity nutritive value
-     */
-    get nutrition() {
-        return this._nutrition || this._size;
-    }
-    set nutrition(nutrition) {
-        this._nutrition = nutrition;
-    }
+	/**
+	 * @property {number} nutrition Entity nutritive value
+	 */
+	get nutrition() {
+		return this._nutrition || (this._size * 100);
+	}
+	set nutrition(nutrition) {
+		this._nutrition = nutrition;
+	}
 
 	/**
 	 * @property {boolean} dragging Entity dragged state
@@ -176,14 +188,10 @@ class Entity {
 		this._toFront();
 
 		this._dragging = true;
-
-		return this;
 	}
 
 	stopDragging() {
 		this._dragging = false;
-
-		return this;
 	}
 
 	remove() {
@@ -191,19 +199,17 @@ class Entity {
 			PARAMS.hovered = null;
 		}
 		this._deleted = true;
-
-		return this;
 	}
-	
+
 	update() {
 		this._draw();
 
 		if (PARAMS.collisions) {
-			[...HUNTERS.values()].concat([...PREYS.values()]).forEach(entity => {
+			for (const entity of [...HUNTERS.values(), ...PREYS.values()]) {
 				if (this !== entity && this._detectCollision(entity)) {
 					this._resolveCollision(entity);
 				}
-			});
+			}
 		}
 		// Follow the mouse when dragged
 		if (this._dragging) {
@@ -228,63 +234,55 @@ class Entity {
 		}
 		// Handles hovered state
 		if (this.hovered) {
-			if (! PARAMS.hovered || this.zid >= PARAMS.hovered.zid) {
+			if (!PARAMS.hovered || this.zid >= PARAMS.hovered.zid) {
 				PARAMS.hovered = this;
 			}
-		} else if (! this._dragging && this === PARAMS.hovered) {
+		} else if (!this._dragging && this === PARAMS.hovered) {
 			PARAMS.hovered = null;
 		}
-
-		return this;
 	}
 
 	_detectCollision(entity) {
-	    return entity._x < this._x + this.w &&
-	        this._x < entity._x + entity.w &&
-	        entity._y < this._y + this.h &&
-	        this._y < entity._y + entity.h;
+		return entity._x < this._x + this.w &&
+			this._x < entity._x + entity.w &&
+			entity._y < this._y + this.h &&
+			this._y < entity._y + entity.h;
 	}
 
 
 	_draw() {
 		PARAMS.c.drawImage(this._img, this._x, this._y, this.w, this.h);
-
-		return this;
 	}
 
-	_resetVelocity(random=true) {
+	_resetVelocity(random = true) {
 		this._velocity = {
 			x: random ? Math.random() * 2 - 1 : 0,
 			y: random ? Math.random() * 2 - 1 : 0,
 		};
-
-		return this;
 	}
 
 	_resolveCollision(entity) {
-	    let distX = entity.x - this.x;
-	    let distY = entity.y - this.y;
+		const distX = entity.x - this.x;
+		const distY = entity.y - this.y;
 
-	    if (0 <= (this.velocity.x - entity.velocity.x) * distX + (this.velocity.y - entity.velocity.y) * distY) {
-	        let angle = Math.atan2(distY, distX) * -1;
+		if (0 <= (this.velocity.x - entity.velocity.x) * distX + (this.velocity.y - entity.velocity.y) * distY) {
+			const angle = Math.atan2(distY, distX) * -1;
 
-	        let u1 = rotate(this.velocity, angle);
-	        let u2 = rotate(entity.velocity, angle);
-	    
-	        this.velocity = rotate({
-	            x: u1.x * (this.mass - entity.mass) / (this.mass + entity.mass) + u2.x * 2 * entity.mass / (this.mass + entity.mass),
-	            y: u1.y,
-	        }, angle * -1);
-	        entity.velocity = rotate({
-	            x: u2.x * (this.mass - entity.mass) / (this.mass + entity.mass) + u1.x * 2 * entity.mass / (this.mass + entity.mass),
-	            y: u2.y,
-	        }, angle * -1);
-	    }
+			const u1 = rotate(this.velocity, angle);
+			const u2 = rotate(entity.velocity, angle);
+
+			this.velocity = rotate({
+				x: u1.x * (this.mass - entity.mass) / (this.mass + entity.mass) + u2.x * 2 * entity.mass / (this.mass + entity.mass),
+				y: u1.y,
+			}, angle * -1);
+			entity.velocity = rotate({
+				x: u2.x * (this.mass - entity.mass) / (this.mass + entity.mass) + u1.x * 2 * entity.mass / (this.mass + entity.mass),
+				y: u2.y,
+			}, angle * -1);
+		}
 	}
 
 	_toFront() {
 		this._zid = UZID.generate();
-
-		return this;
 	}
 }

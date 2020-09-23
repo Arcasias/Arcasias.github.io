@@ -2,19 +2,18 @@ const HUNTERS = new Map();
 
 class Hunter extends Entity {
 
-	static player = new Player(50, 100);
-
 	/**
 	 * @constructor
 	 */
 	constructor(species, options) {
-		options.prefix = 'H';
-		super(species, options);
+		super(species, Object.assign({}, options, {
+			prefix: "H",
+		}));
 
 		this._mood = options.mood || 50;
 		this._talking = options.talking || false;
 		this._text = {
-			text: options.text || '',
+			text: options.text || "",
 			width: 0,
 			height: 0,
 		};
@@ -22,6 +21,7 @@ class Hunter extends Entity {
 		this._exploding = options.exploding || false;
 		this._explodingIntensity = options.explodingIntensity || 0;
 		this._resetVelocity(true);
+
 		HUNTERS.set(this._id, this);
 	}
 
@@ -33,7 +33,7 @@ class Hunter extends Entity {
 	}
 	set species(species) {
 		if (species != this._species && this._objective && SPECIES[species].target != this._objective.species) {
-			this._resetVelocity(true)
+			this._resetVelocity(true);
 		}
 		super.species = species;
 	}
@@ -41,13 +41,13 @@ class Hunter extends Entity {
 	get mood() {
 		let currentMood;
 		if (this._mood === 0 && PARAMS.cannibalism) {
-			currentMood = 'cannibal';
+			currentMood = "cannibal";
 		} else {
-			MOODS.forEach(mood => {
+			for (const mood of MOODS) {
 				if (mood.value <= this._mood) {
 					currentMood = mood.name;
 				}
-			});
+			}
 		}
 		return currentMood;
 	}
@@ -73,10 +73,8 @@ class Hunter extends Entity {
 		if (this._exploding) {
 			clearTimeout(this._exploding);
 		}
-		super.remove()
+		super.remove();
 		HUNTERS.delete(this._id);
-
-		return this;
 	}
 
 	/**
@@ -85,10 +83,8 @@ class Hunter extends Entity {
 	startDragging() {
 		super.startDragging();
 
-		this._startTalking('dragged', true);
+		this._startTalking("dragged", true);
 		this._changeMood(-1);
-
-		return this;
 	}
 
 	/**
@@ -96,10 +92,7 @@ class Hunter extends Entity {
 	 */
 	stopDragging() {
 		super.stopDragging();
-
-		this._startTalking('dropped', true);
-
-		return this;
+		this._startTalking("dropped", true);
 	}
 
 	/**
@@ -113,7 +106,7 @@ class Hunter extends Entity {
 		}
 
 		if (this._exploding) {
-			this._explodingIntensity ++;
+			this._explodingIntensity++;
 			this._x += Math.random() * this._explodingIntensity / 5 - this._explodingIntensity / 10;
 			this._y += Math.random() * this._explodingIntensity / 5 - this._explodingIntensity / 10;
 		} else if (PARAMS.running && this._speed > 0) {
@@ -132,26 +125,22 @@ class Hunter extends Entity {
 				this._objectiveSearch();
 			}
 			// 0.1% chance to start talking
-			if (! this._talking && Math.random() < 1 / 1000) {
+			if (!this._talking && Math.random() < 1 / 1000) {
 				this._startTalking();
 			}
 			// If hunter is free to go and can move
-			if (! this._dragging && this._moving) {
-				let moodMult = this.mood === 'cannibal' ? 1.2 : Math.max(1, this._mood) / 50;
+			if (!this._dragging && this._moving) {
+				let moodMult = this.mood === "cannibal" ? 1.2 : Math.max(1, this._mood) / 50;
 				this._x += this._velocity.x * this._speed * moodMult;
 				this._y += this._velocity.y * this._speed * moodMult;
 			}
-		} else if (! this._talking && Math.random() < 1 / 1000) {
-			this._startTalking('pending');
+		} else if (!this._talking && Math.random() < 1 / 1000) {
+			this._startTalking("pending");
 		}
-
-		return this;
 	}
 
-	_changeMood(plus=0) {
+	_changeMood(plus = 0) {
 		this.mood = this._mood + (plus || (Math.random() > 0.5 ? 1 : - 1));
-
-		return this;
 	}
 
 	/**
@@ -161,34 +150,32 @@ class Hunter extends Entity {
 		super._draw();
 
 		if (this._talking) {
-			let color = `rgb(${PARAMS.colorChanging ? PARAMS.color.join(',') : [0, 0, 0].join(',')})`;
+			const color = `rgb(${PARAMS.colorChanging ? PARAMS.color.join(",") : [0, 0, 0].join(",")})`;
 
-		    PARAMS.c.strokeStyle = color;
-		    PARAMS.c.strokeRect(this._x + this.w / 2 - 10, this._y - 35, this._text.width + 20, this._text.height + 20);
-		    PARAMS.c.fillStyle = '#ffffff';
-		    PARAMS.c.fillRect(this._x + this.w / 2 - 10, this._y - 35, this._text.width + 20, this._text.height + 20);
-		    
-		    PARAMS.c.fillStyle = color;
-		    PARAMS.c.fillText(this._text.text, this._x + this.w / 2, this._y - 8);
+			PARAMS.c.strokeStyle = color;
+			PARAMS.c.strokeRect(this._x + this.w / 2 - 10, this._y - 35, this._text.width + 20, this._text.height + 20);
+			PARAMS.c.fillStyle = "#ffffff";
+			PARAMS.c.fillRect(this._x + this.w / 2 - 10, this._y - 35, this._text.width + 20, this._text.height + 20);
+
+			PARAMS.c.fillStyle = color;
+			PARAMS.c.fillText(this._text.text, this._x + this.w / 2, this._y - 8);
 		}
-
-		return this;
 	}
 
 	_explode() {
-		this._startTalking('exploding', true);
+		this._startTalking("exploding", true);
 
 		this._exploding = setTimeout(() => {
 			let amountOfChildren = HUNTERS.size < HUNTER.maxAmount ? Math.floor(Math.random() * 50) + 1 : 1;
 			if (window.debugging) {
 				amountOfChildren = 100;
 			}
-			for (let i = 0; i < amountOfChildren; i ++) {
-				let newHunter = new Hunter(this._species, {
+			for (let i = 0; i < amountOfChildren; i++) {
+				const newHunter = new Hunter(this._species, {
 					x: this.x,
 					y: this.y,
 					img: this._img,
-					size: Math.max(0.05, this._baseSize + (Math.random() * 0.05 - 0.025)),
+					size: Math.max(5, this._baseSize + (Math.random() * 5 - 2.5)),
 					speed: this._speed,
 				});
 				HUNTERS.set(newHunter.id, newHunter);
@@ -196,30 +183,24 @@ class Hunter extends Entity {
 			this._exploding = false;
 			this.remove();
 		}, 2000);
-
-		return this;
 	}
 
 	_objectiveFound() {
-		if (this.mood !== 'cannibal') {
+		if (this.mood !== "cannibal") {
 			this.mood = this._mood + 5;
 		}
-
-		return this;
 	}
 
 	_objectiveLost() {
 		this.mood = this._mood - 10;
 		this._objective = null;
 
-		this._resetVelocity()
-			._objectiveSearch();
+		this._resetVelocity();
+		this._objectiveSearch();
 
 		if (Math.random() < 1 / (100 / 15)) {
-			this._startTalking('notfound', true);
+			this._startTalking("notfound", true);
 		}
-
-		return this;
 	}
 
 	_objectiveReached() {
@@ -228,49 +209,48 @@ class Hunter extends Entity {
 
 		this._objective.remove();
 
-		this._startTalking('found', true)
-			._objectiveSearch();
+		this._startTalking("found", true);
+		this._objectiveSearch();
 
 		if (this._size >= 1) {
 			this._explode();
 		}
-
-		return this;
 	}
 
 	_objectiveSearch() {
 		// Accepted types
-		let targets = [...PREYS.values()].filter(prey => prey.species === SPECIES[this._species].target)
-			.concat(this.mood === 'cannibal' ? [...HUNTERS.values()].filter(hunter => hunter !== this) : []);
+		const targets = [...PREYS.values()].filter(prey => prey.species === SPECIES[this._species].target);
+		if (this.mood === "cannibal") {
+			const otherHunters = [...HUNTERS.values()].filter(hunter => hunter !== this);
+			targets.push(...otherHunters);
+		}
 		if (targets.length === 0) {
 			this._objective = null;
 		} else {
 			let closestEntity;
 			let closestDistance = Infinity;
-			targets.forEach(entity => {
-				let distance = Math.sqrt((entity.x - this.x) ** 2 + (entity.y - this.y) ** 2);
+			for (const entity of targets) {
+				const distance = Math.sqrt((entity.x - this.x) ** 2 + (entity.y - this.y) ** 2);
 				if (distance < closestDistance) {
 					closestDistance = distance;
 					closestEntity = entity;
 				}
-			});
+			}
 			this._objective = closestEntity;
 			if (Math.random() < 1 / (100 / 15)) {
-				this._startTalking('seek', true);
+				this._startTalking("seek", true);
 			}
 			return this._objectiveFound();
 		}
 		// 0.5% chance on each search for mood to decrease
-		if (! this._objective && Math.random() < 1 / 200) {
+		if (!this._objective && Math.random() < 1 / 200) {
 			this._changeMood(-1);
 		}
-
-		return this;
 	}
 
-	_startTalking(context='default', override=false) {
+	_startTalking(context = "default", override = false) {
 		if (this._talking) {
-			if (! override) {
+			if (!override) {
 				return;
 			}
 			this._stopTalking(true);
@@ -279,22 +259,18 @@ class Hunter extends Entity {
 		this._toFront();
 
 		this.text = choice(SPECIES[this._species].speech[context]);
-		this._talking = setTimeout(() => {
-			this._stopTalking();
-		}, 2000);
-
-		return this;
+		this._talking = setTimeout(() => this._stopTalking(), 2000);
 	}
 
-	_stopTalking(clearPrevious=false) {
-		if (! this._talking) {
+	_stopTalking(clearPrevious = false) {
+		if (!this._talking) {
 			return;
 		}
 		if (clearPrevious) {
 			clearTimeout(this._talking);
 		}
 		this._talking = false;
-
-		return this;
 	}
 }
+
+Hunter.player = new Player(50, 100);

@@ -1,106 +1,106 @@
 let frames = 0;
+let rgbRule;
+let mousemoved = false;
+
+const DEFAULTABLE_SETTINGS = ["cb-checkbox", "trackbar", "select"];
+const RGB_TARGETS = ["label", "text-info", "button", "changelog-wrapper"];
+
 setInterval(function () {
-	document.getElementById('fps').innerHTML = frames;
+	document.getElementById("fps").innerHTML = frames;
 	frames = 0;
 }, 1000);
 
-let rgbRule;
-
-(function (fn) {
-	if (document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading') {
-	    fn();
-	} else {
-	    document.on('DOMContentLoaded', fn, { once: true });
-	}
-})(async function () {
-	for (let styleSheet of document.styleSheets) {
-		for (let rule of styleSheet.cssRules) {
-			if (rule.selectorText === '.rgb') {
-				rgbRule = rule;
-			}
+for (const styleSheet of document.styleSheets) {
+	for (const rule of styleSheet.cssRules) {
+		if (rule.selectorText === ".rgb") {
+			rgbRule = rule;
 		}
 	}
-	generateChangelog();
+}
 
-	['label', 'text-info', 'button', 'changelog-wrapper'].forEach(className => {
-		[...document.getElementsByClassName(className)].forEach(el => {
-			el.classList.add('rgb');
-		});
-	});
+generateChangelog();
 
-	PARAMS.canvas = document.getElementById('game-area');
-	PARAMS.c = PARAMS.canvas.getContext('2d');
+for (const className of RGB_TARGETS) {
+	for (const el of document.getElementsByClassName(className)) {
+		el.classList.add("rgb");
+	}
+}
+
+setTimeout(() => {
+	PARAMS.canvas = document.getElementById("game-area");
 
 	PARAMS.canvas.width = PARAMS.canvas.offsetWidth;
 	PARAMS.canvas.height = PARAMS.canvas.offsetHeight;
+
+	PARAMS.c = PARAMS.canvas.getContext("2d");
 
 	PARAMS.mouse = {
 		x: PARAMS.canvas.width / 2,
 		y: PARAMS.canvas.height / 2,
 	};
 
-	document.on('mousemove', function (ev) {
-		PARAMS.mouse.x = ev.clientX - PARAMS.canvas.offsetLeft;
-		PARAMS.mouse.y = ev.clientY - PARAMS.canvas.offsetTop;
-	});
-
-	document.on('mousewheel', function (ev) {
-		let up = ev.deltaY < 0;
-
-		updateOptions({
-			el: 'preys-size',
-			setValue: PARAMS.preySize + 5 * (up ? 1 : -1),
-			param: 'preySize',
-		});
-	});
-
-	window.on('resize', function () {
-		PARAMS.canvas.width = PARAMS.canvas.offsetWidth;
-		PARAMS.canvas.height = PARAMS.canvas.offsetHeight;
-
-		init();
-	});
-
-	document.getElementById('button-start-stop').on('click', () => { toggleStart(! PARAMS.running) });
-	document.getElementById('button-reset').on('click', reset);
-	document.getElementById('button-reset-settings').on('click', resetSettings);
-	document.getElementById('button-open-changelog').on('click', toggleChangelog.bind(null, true));
-	document.getElementById('button-close-changelog').on('click', toggleChangelog.bind(null, false));
-	document.getElementById('preys-size').on('input', updateOptions);
-	document.getElementById('color-speed').on('input', updateColorSpeed);
-	document.getElementById('cb-collisions').on('input', updateCollisions);
-	document.getElementById('cb-cannibalism').on('input', updateCannibalism);
-	document.getElementById('cb-mute').on('input', updateMute);
-	document.getElementById('cb-rgb').on('input', updateRGB);
-	[...document.getElementsByClassName('change-species')].forEach(speciesModifier => {
-		speciesModifier.on('change', updateSpecies);
-	});
-
-	document.getElementById('game-area').on('mousedown', onMouseDown);
-	document.on('mouseup', onMouseUp);
-	document.getElementById('game-area').on('click', () => {
-		if (PARAMS.hovered) {
-			return;
-		}
-		let newPrey = new Prey(PARAMS.preySpecies, {
-			x: PARAMS.mouse.x,
-			y: PARAMS.mouse.y,
-			img: PARAMS.preyImg,
-			size: PARAMS.preySize,
-		});
-	});
-
-	await nextTick();
-
 	resetSettings();
 	init();
 	animate();
 });
 
-document.on('keydown', function (ev) {
-	// ev.preventDefault();
-	// console.log(ev.keyCode);
-	let preventKeys = [27, 32, 77, 82, 112];
+on(document, "mousemove", function (ev) {
+	if (mousemoved) {
+		return;
+	}
+	mousemoved = new Promise(requestAnimationFrame).then(() => {
+		mousemoved = false;
+	});
+	PARAMS.mouse.x = ev.clientX - PARAMS.canvas.offsetLeft;
+	PARAMS.mouse.y = ev.clientY - PARAMS.canvas.offsetTop;
+});
+
+on(document, "mousewheel", function (ev) {
+	const up = ev.deltaY < 0;
+	updateOptions({
+		el: "preys-size",
+		setValue: PARAMS.preySize + 5 * (up ? 1 : -1),
+		param: "preySize",
+	});
+});
+
+on(window, "resize", function () {
+	PARAMS.canvas.width = PARAMS.canvas.offsetWidth;
+	PARAMS.canvas.height = PARAMS.canvas.offsetHeight;
+
+	init();
+});
+
+on(document.getElementById("button-start-stop"), "click", () => toggleStart(!PARAMS.running));
+on(document.getElementById("button-reset"), "click", reset);
+on(document.getElementById("button-reset-settings"), "click", resetSettings);
+on(document.getElementById("button-open-changelog"), "click", toggleChangelog.bind(null, true));
+on(document.getElementById("button-close-changelog"), "click", toggleChangelog.bind(null, false));
+on(document.getElementById("preys-size"), "input", updatePreySize);
+on(document.getElementById("color-speed"), "input", updateColorSpeed);
+on(document.getElementById("cb-collisions"), "input", updateCollisions);
+on(document.getElementById("cb-cannibalism"), "input", updateCannibalism);
+on(document.getElementById("cb-mute"), "input", updateMute);
+on(document.getElementById("cb-rgb"), "input", updateRGB);
+for (const speciesModifier of document.getElementsByClassName("change-species")) {
+	on(speciesModifier, "change", updateSpecies);
+}
+on(document.getElementById("game-area"), "mousedown", onMouseDown);
+on(document, "mouseup", onMouseUp);
+on(document.getElementById("game-area"), "click", () => {
+	if (PARAMS.hovered) {
+		return;
+	}
+	new Prey(PARAMS.preySpecies, {
+		x: PARAMS.mouse.x,
+		y: PARAMS.mouse.y,
+		img: PARAMS.preyImg,
+		size: PARAMS.preySize,
+	});
+});
+
+on(document, "keydown", function (ev) {
+	const preventKeys = [27, 32, 77, 82, 112];
 	if (preventKeys.includes(ev.keyCode)) {
 		ev.preventDefault();
 	}
@@ -111,7 +111,7 @@ document.on('keydown', function (ev) {
 			}
 			break;
 		case 32: 	// Spacebar
-			toggleStart(! PARAMS.running)
+			toggleStart(!PARAMS.running);
 			break;
 		case 77: 	// M
 			updateMute(true);
@@ -121,51 +121,50 @@ document.on('keydown', function (ev) {
 			break;
 		case 112:	// F1
 			ev.preventDefault();
-			toggleChangelog(! PARAMS.changelogVisible);
+			toggleChangelog(!PARAMS.changelogVisible);
 			break;
 	}
 });
 
 function init() {
 	resetEntities();
-	console.log(PARAMS);
+	updateSpecies();
 
-	let availableAudios = [...document.getElementsByTagName('audio')]
+	const availableAudios = [...document.getElementsByTagName("audio")]
 		.filter(audio => SPECIES[PARAMS.hunterSpecies].sounds.includes(audio.id));
 	Hunter.player.load(availableAudios);
 
-	let newHunter = new Hunter(PARAMS.hunterSpecies, {
+	new Hunter(PARAMS.hunterSpecies, {
 		x: PARAMS.canvas.width / 2,
 		y: PARAMS.canvas.height / 2,
 		img: PARAMS.hunterImg,
-		size: PARAMS.hunterSizeMin,
 		speed: 3,
 	});
 }
 
 function animate() {
-	frames ++;
+	frames++;
 	PARAMS.c.clearRect(0, 0, PARAMS.canvas.width, PARAMS.canvas.height);
 	PARAMS.c.font = PARAMS.font;
 
-	let entities = [...HUNTERS.values()].concat([...PREYS.values()]);
-	entities.sort((a, b) => a.zid - b.zid)
-	    .forEach(entity => {
-	        entity.update();
-	    });
+	const sortedEntities = [...HUNTERS.values(), ...PREYS.values()].sort((a, b) => a.zid - b.zid);
+	for (const entity of sortedEntities) {
+		entity.update();
+	}
+
 
 	// Draw loops cursor if no entity is hovered
 	if (PARAMS.hovered) {
 		if (PARAMS.cursorHidden) {
-			document.getElementById('game-area').classList.remove('hide-cursor');
+			document.getElementById("game-area").classList.remove("hide-cursor");
 			PARAMS.cursorHidden = false;
 		}
 	} else {
-		let width = PARAMS.preyImg.clientWidth * PARAMS.preySize;
-		let height = PARAMS.preyImg.clientWidth * PARAMS.preySize;
+		const width = PARAMS.preyImg.clientWidth * (PARAMS.preySize / 100);
+		const height = PARAMS.preyImg.clientWidth * (PARAMS.preySize / 100);
 		PARAMS.c.drawImage(PARAMS.preyImg, PARAMS.mouse.x - width / 2, PARAMS.mouse.y - height / 2, width, height);
-		if (! PARAMS.cursorHidden) {
-			document.getElementById('game-area').classList.add('hide-cursor');
+		if (!PARAMS.cursorHidden) {
+			document.getElementById("game-area").classList.add("hide-cursor");
 			PARAMS.cursorHidden = true;
 		}
 	}
@@ -174,45 +173,45 @@ function animate() {
 		PARAMS.color[PARAMS.colorPtr % 3] = Math.max(Math.min(PARAMS.color[PARAMS.colorPtr % 3] + PARAMS.colorSpeed * PARAMS.colorMult, 255), 0);
 		if ((PARAMS.colorMult > 0 && PARAMS.color[PARAMS.colorPtr % 3] == 255) ||
 			(PARAMS.colorMult < 0 && PARAMS.color[PARAMS.colorPtr % 3] == 0)) {
-			PARAMS.colorPtr ++;
+			PARAMS.colorPtr++;
 			PARAMS.colorMult *= -1;
 		}
 
-		rgbRule.style.color = '#' + PARAMS.color.map(color => color.toString(16).padStart(2, '0')).join('');
+		rgbRule.style.color = "#" + PARAMS.color.map(color => color.toString(16).padStart(2, "0")).join("");
 	}
 	// Update hunters and preys amount and progress
-	if (HUNTERS.size != document.getElementById('hunters-number').innerHTML) {
-		document.getElementById('hunters-number').innerHTML = HUNTERS.size;
-		document.getElementById('hunters-progress').style.width = Math.min(HUNTERS.size / PARAMS.hunterMaxAmount * 100, 100) + '%';
+	if (HUNTERS.size != document.getElementById("hunters-number").innerHTML) {
+		document.getElementById("hunters-number").innerHTML = HUNTERS.size;
+		document.getElementById("hunters-progress").style.width = Math.min(HUNTERS.size / PARAMS.hunterMaxAmount * 100, 100) + "%";
 	}
-	if (PREYS.size != document.getElementById('preys-number').innerHTML) {
-		document.getElementById('preys-number').innerHTML = PREYS.size;
-		document.getElementById('preys-progress').style.width = Math.min(PREYS.size / PARAMS.preyMaxAmount * 100, 100) + '%';
+	if (PREYS.size != document.getElementById("preys-number").innerHTML) {
+		document.getElementById("preys-number").innerHTML = PREYS.size;
+		document.getElementById("preys-progress").style.width = Math.min(PREYS.size / PARAMS.preyMaxAmount * 100, 100) + "%";
 	}
 	// Update status text
 	if (PARAMS.hovered) {
-		document.getElementsByClassName('status')[0].style.opacity = 1;
-		document.getElementById('status-id').innerHTML = PARAMS.hovered.id;
-		document.getElementById('status-species').innerHTML = PARAMS.hovered.species;
-		document.getElementById('status-size').innerHTML = PARAMS.hovered.size;
+		document.getElementsByClassName("status")[0].style.opacity = 1;
+		document.getElementById("status-id").innerHTML = PARAMS.hovered.id;
+		document.getElementById("status-species").innerHTML = PARAMS.hovered.species;
+		document.getElementById("status-size").innerHTML = PARAMS.hovered.size;
 		if (PARAMS.hovered.mood) {
-			document.getElementById('status-mood').innerHTML = `${PARAMS.hovered._mood} (${PARAMS.hovered.mood})`;
-			document.getElementById('status-mood').parentNode.style.opacity = 1;
+			document.getElementById("status-mood").innerHTML = `${PARAMS.hovered._mood} (${PARAMS.hovered.mood})`;
+			document.getElementById("status-mood").parentNode.style.opacity = 1;
 		} else {
-			document.getElementById('status-mood').parentNode.style.opacity = 0;
+			document.getElementById("status-mood").parentNode.style.opacity = 0;
 		}
 	} else {
-		document.getElementsByClassName('status')[0].style.opacity = 0;
+		document.getElementsByClassName("status")[0].style.opacity = 0;
 	}
 	requestAnimationFrame(animate);
 }
 
-function toggleStart(start=true) {
+function toggleStart(start = true) {
 	PARAMS.running = start;
-	const btn = document.getElementById('button-start-stop');
+	const btn = document.getElementById("button-start-stop");
 
-	btn.classList.remove(start ? 'start' : 'stop');
-	btn.classList.add(start ? 'stop' : 'start');
+	btn.classList.remove(start ? "start" : "stop");
+	btn.classList.add(start ? "stop" : "start");
 	btn.innerHTML = start ? "STOP" : "START";
 }
 
@@ -224,51 +223,28 @@ function reset() {
 }
 
 function resetSettings() {
-	['cb-checkbox', 'trackbar', 'select'].forEach(className => {
-		[...document.getElementsByClassName(className)].forEach(el => {
-			let defaultVal = el.dataset['default'];
-			switch (el.type) {
-				case 'checkbox':
-					el.checked = defaultVal === 'true';
-					break;
-				default:
-					el.value = defaultVal;
-					break;
+	for (const className of DEFAULTABLE_SETTINGS) {
+		for (const el of document.getElementsByClassName(className)) {
+			const defaultVal = el.dataset.default;
+			if (el.type === "checkbox") {
+				el.checked = defaultVal === "true";
+			} else {
+				el.value = defaultVal;
 			}
-		});
-	});
+		}
+	}
 	updateSettingsValues();
 }
 
 function updateSettingsValues() {
 	updateOptions([
-		{	
-			el: 'preys-size',
-			param: 'size',
-		},
-		{		
-			el: 'cb-collisions',
-			param: 'collisions',
-		},
-		{		
-			el: 'cb-cannibalism',
-			param: 'cannibalism',
-		},
-		{		
-			el: 'cb-mute',
-			param: 'mute',
-		},
-		{		
-			el: 'color-speed',
-			param: 'colorSpeed',
-		},
-		{		
-			el: 'cb-rgb',
-			param: 'colorChanging',
-		},
-		
+		{ el: "preys-size", param: "size" },
+		{ el: "cb-collisions", param: "collisions" },
+		{ el: "cb-cannibalism", param: "cannibalism" },
+		{ el: "cb-mute", param: "mute" },
+		{ el: "color-speed", param: "colorSpeed" },
+		{ el: "cb-rgb", param: "colorChanging" },
 	]);
-	Hunter.player.mute(PARAMS.mute);
 }
 
 function onMouseDown() {
@@ -285,108 +261,113 @@ function onMouseUp() {
 
 // TODO gather all update...() into this
 function updateOptions(option) {
-	let options = Array.isArray(option) ? option : [option];
-	options.forEach(opt => {
-		let el = opt.target || document.getElementById(opt.el);
-		let property = el.type === 'checkbox' ? 'checked' : 'value';
-		if (opt.setValue) {
+	const options = Array.isArray(option) ? option : [option];
+	for (const { el: selector, param, setValue, target } of options) {
+		const el = target || document.getElementById(selector);
+		const property = el.type === "checkbox" ? "checked" : "value";
+		if (setValue) {
 			el[property] = setValue;
 		}
-		PARAMS[opt.param] = el[property];
-	});
-}
-
-function updatePreySize(setValue) {
-	return updateOptions({
-		el: 'preys-size',
-		setValue: setValue,
-		param: 'size',
-	});
-}
-
-function updateCollisions(setValue) {
-	return updateOptions({
-		el: 'cb-collisions',
-		setValue: setValue,
-		param: 'collisions',
-	});
-}
-
-function updateCannibalism(setValue) {
-	return updateOptions({
-		el: 'cb-cannibalism',
-		setValue: setValue,
-		param: 'cannibalism',
-	});
-}
-
-function updateMute(setValue) {
-	return updateOptions({
-		el: 'cb-mute',
-		setValue: setValue,
-		param: 'mute',
-	});
+		const value = el[property];
+		if (!isNaN(value)) {
+			PARAMS[param] = Number(value);
+		} else if (/true|false/i.test(value)) {
+			PARAMS[param] = Boolean(value);
+		} else {
+			PARAMS[param] = value;
+		}
+	}
 	Hunter.player.mute(PARAMS.mute);
 }
 
-function updateColorSpeed(setValue) {
+function updatePreySize(ev) {
 	return updateOptions({
-		el: 'color-speed',
-		setValue: setValue,
-		param: 'colorSpeed',
+		el: "preys-size",
+		setValue: ev.currentTarget.value,
+		param: "size",
 	});
 }
 
-function updateRGB(setValue) {
+function updateCollisions(ev) {
 	return updateOptions({
-		el: 'cb-rgb',
-		setValue: setValue,
-		param: 'colorChanging',
+		el: "cb-collisions",
+		setValue: ev.currentTarget.checked,
+		param: "collisions",
+	});
+}
+
+function updateCannibalism(ev) {
+	return updateOptions({
+		el: "cb-cannibalism",
+		setValue: ev.currentTarget.checked,
+		param: "cannibalism",
+	});
+}
+
+function updateMute(ev) {
+	return updateOptions({
+		el: "cb-mute",
+		setValue: ev.currentTarget.checked,
+		param: "mute",
+	});
+}
+
+function updateColorSpeed(ev) {
+	return updateOptions({
+		el: "color-speed",
+		setValue: ev.currentTarget.value,
+		param: "colorSpeed",
+	});
+}
+
+function updateRGB(ev) {
+	return updateOptions({
+		el: "cb-rgb",
+		setValue: ev.currentTarget.checked,
+		param: "colorChanging",
 	});
 }
 
 function resetEntities() {
 	PARAMS.hovered = null;
-	HUNTERS.forEach(hunter => {
-		hunter.remove();
-	});
-	PREYS.forEach(prey => {
-		prey.remove();
-	});
+	HUNTERS.forEach(hunter => hunter.remove());
+	PREYS.forEach(prey => prey.remove());
 }
 
 function generateChangelog() {
-	let versionItems = [];
-
-	Object.keys(CHANGELOG).forEach(version => {
-		let versionTag = document.createElement('div');
-		versionTag.classList.add('version-title');
+	for (const version in CHANGELOG) {
+		const versionTag = document.createElement("div");
+		versionTag.classList.add("version-title");
 		versionTag.innerHTML = version;
 
-		let versionItemsList = document.createElement('ul');
-		CHANGELOG[version].forEach(item => {
-			let li = document.createElement('li');
+		const versionItemsList = document.createElement("ul");
+		for (const item of CHANGELOG[version]) {
+			const li = document.createElement("li");
 			li.innerHTML = item;
 			versionItemsList.append(li);
-		});
-		
-		document.getElementById('changelog-items').append(versionTag);
-		document.getElementById('changelog-items').append(document.createElement('hr'));
-		document.getElementById('changelog-items').append(versionItemsList);
-	});
+		}
+
+		const changeLogItems = document.getElementById("changelog-items");
+		changeLogItems.appendChild(versionTag);
+		changeLogItems.appendChild(document.createElement("hr"));
+		changeLogItems.appendChild(versionItemsList);
+	}
 }
 
 function toggleChangelog(state) {
 	PARAMS.changelogVisible = state;
 
-	document.getElementsByClassName('wrapper')[0].style.opacity = state ? 0.2 : 1;
-	document.getElementById('changelog').style.display = state ? 'block' : 'none';
-
+	document.getElementsByClassName("wrapper")[0].style.opacity = state ? 0.2 : 1;
+	document.getElementById("changelog").style.display = state ? "block" : "none";
 }
 
 function updateSpecies() {
-	PARAMS.hunterSpecies = document.querySelector('input[name="hunters-species"]:checked').value;
-	PARAMS.hunterImg = document.getElementById(PARAMS.hunterSpecies);
-	PARAMS.preySpecies = document.querySelector('input[name="preys-species"]:checked').value;
-	PARAMS.preyImg = document.getElementById(PARAMS.preySpecies);
+	const hunterOption = document.querySelector("input[name='hunters-species']:checked");
+	const preyOption = document.querySelector("input[name='preys-species']:checked");
+
+	PARAMS.hunterSpecies = hunterOption.value;
+	PARAMS.preySpecies = preyOption.value;
+
+	PARAMS.hunterImg = document.getElementById(hunterOption.value);
+	PARAMS.preyImg = document.getElementById(preyOption.value);
 }
